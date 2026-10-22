@@ -8,8 +8,8 @@
 
 Uma aventura de exploração e restauração em que a matemática faz o tempo voltar a correr.
 
-[![Jogar online](https://img.shields.io/badge/JOGAR_AGORA-Navegador-8adbc1?style=for-the-badge)](https://mariomont30.github.io/paradoxo-museu-fora-do-tempo/)
-[![Baixar para Windows](https://img.shields.io/badge/BAIXAR_PARA_WINDOWS-PC_e_Notebook-e9c78b?style=for-the-badge)](https://github.com/mariomont30/paradoxo-museu-fora-do-tempo/releases/latest/download/PARADOXO-Windows.zip)
+[![Jogar online](https://img.shields.io/badge/JOGAR_AGORA-Navegador-8adbc1?style=for-the-badge)](https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/)
+[![Baixar para Windows](https://img.shields.io/badge/BAIXAR_PARA_WINDOWS-PC_e_Notebook-e9c78b?style=for-the-badge)](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest/download/PARADOXO-Windows.zip)
 
 ![Godot](https://img.shields.io/badge/Godot-4.7.2-478cbf?logo=godotengine&logoColor=white)
 ![Versão](https://img.shields.io/badge/Versão-2.14.0-e9c78b)
@@ -44,7 +44,7 @@ Explore as salas, resolva desafios de Progressão Aritmética e restaure **12 ob
 
 ## Baixar e jogar no Windows
 
-### [⬇️ Baixar P.A.RADOXO para Windows — PC e notebook](https://github.com/mariomont30/paradoxo-museu-fora-do-tempo/releases/latest/download/PARADOXO-Windows.zip)
+### [⬇️ Baixar P.A.RADOXO para Windows — PC e notebook](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest/download/PARADOXO-Windows.zip)
 
 **Versão portátil para Windows de 64 bits. Não é necessário instalar o Godot.**
 
@@ -55,21 +55,21 @@ Explore as salas, resolva desafios de Progressão Aritmética e restaure **12 ob
 
 Depois de baixar e extrair, a versão Windows pode ser jogada **sem internet**. O computador precisa oferecer suporte a **OpenGL 3.3**. A versão distribuída não possui assinatura digital.
 
-[Ver a versão publicada, notas e arquivos de verificação →](https://github.com/mariomont30/paradoxo-museu-fora-do-tempo/releases/latest)
+[Ver a versão publicada, notas e arquivos de verificação →](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest)
 
-Prefere jogar sem baixar? **[Abra o jogo no navegador](https://mariomont30.github.io/paradoxo-museu-fora-do-tempo/)**.
+Prefere jogar sem baixar? **[Abra o jogo no navegador](https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/)**.
 
 ## Jogue no celular
 
 <div align="center">
 
-<a href="https://mariomont30.github.io/paradoxo-museu-fora-do-tempo/">
+<a href="https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/">
 <img src="media/qr-code.png" alt="QR code para abrir P.A.RADOXO no navegador" width="230">
 </a>
 
 **Aponte a câmera, abra o link e entre no museu.**
 
-[Abrir o jogo](https://mariomont30.github.io/paradoxo-museu-fora-do-tempo/) · [Baixar QR code em PNG](media/qr-code.png) · [QR code em SVG](media/qr-code.svg)
+[Abrir o jogo](https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/) · [Baixar QR code em PNG](media/qr-code.png) · [QR code em SVG](media/qr-code.svg)
 
 </div>
 
@@ -129,7 +129,7 @@ As jornadas ficam salvas **no dispositivo e no navegador usados**. O progresso d
 └── index.*, mobile.*            # Distribuição Web servida pelo GitHub Pages
 ```
 
-Os arquivos da Web permanecem na raiz para preservar o endereço público e o funcionamento do jogo. Executáveis e ZIPs para jogadores ficam nas **[Releases](https://github.com/mariomont30/paradoxo-museu-fora-do-tempo/releases)**, separados do código-fonte.
+Os arquivos da Web permanecem na raiz para preservar o endereço público e o funcionamento do jogo. Executáveis e ZIPs para jogadores ficam nas **[Releases](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases)**, separados do código-fonte.
 
 Para editar, abra **[game/project.godot](game/project.godot)** no **Godot 4.7.2**. [Leia as instruções de desenvolvimento e exportação](docs/DESENVOLVIMENTO.md).
 
@@ -154,6 +154,6 @@ Para editar, abra **[game/project.godot](game/project.godot)** no **Godot 4.7.2*
 
 **O museu continua vivo enquanto alguém tem curiosidade.**
 
-[Jogar agora](https://mariomont30.github.io/paradoxo-museu-fora-do-tempo/) · [Baixar para Windows](https://github.com/mariomont30/paradoxo-museu-fora-do-tempo/releases/latest/download/PARADOXO-Windows.zip)
+[Jogar agora](https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/) · [Baixar para Windows](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest/download/PARADOXO-Windows.zip)
 
 </div>

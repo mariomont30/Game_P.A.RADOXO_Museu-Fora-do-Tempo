@@ -12,7 +12,7 @@ Validação local: 15.192 verificações móveis aprovadas, incluindo todas as o
 
 # Publicação concluída — 22/10/2026
 
-A página pública e o QR code foram validados. Jogue: https://mariomont30.github.io/paradoxo-museu-fora-do-tempo/. Veja PUBLICACAO-2.12.md para os resultados e limites dos testes. Os relatos de bloqueio abaixo são históricos, anteriores à publicação no GitHub Pages.
+A página pública e o QR code foram validados. Jogue: https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/. Veja PUBLICACAO-2.12.md para os resultados e limites dos testes. Os relatos de bloqueio abaixo são históricos, anteriores à publicação no GitHub Pages.
 
 ---
 

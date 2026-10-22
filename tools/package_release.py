@@ -27,8 +27,8 @@ def package() -> None:
         'Setas ou clique: caminhar. E ou Examinar: abrir uma obra.\n'
         'Esc ou Enter: pausar/retomar. F11: tela cheia/janela.\n'
         'Menus: setas e Espaco. Textos com foco: setas e Page Up/Down.\n\n'
-        'Jogue online: https://mariomont30.github.io/paradoxo-museu-fora-do-tempo/\n'
-        'Guia: https://github.com/mariomont30/paradoxo-museu-fora-do-tempo/blob/gh-pages/docs/GUIA-DO-JOGADOR.md\n'
+        'Jogue online: https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/\n'
+        'Guia: https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/blob/gh-pages/docs/GUIA-DO-JOGADOR.md\n'
         'O progresso e local ao dispositivo; nao ha sincronizacao entre Web e Windows.\n', encoding='utf-8')
     targets = [('PARADOXO-Windows.zip', [(p, Path('PARADOXO-Windows') / p.relative_to(BUILD)) for p in BUILD.rglob('*') if p.is_file()])]
     source = []

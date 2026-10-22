@@ -4,7 +4,7 @@ Voltar ao [README](../README.md).
 
 ## Comece sua jornada
 
-No [navegador](https://mariomont30.github.io/paradoxo-museu-fora-do-tempo/), toque em Entrar no museu. No Windows, extraia o ZIP da [Release](https://github.com/mariomont30/paradoxo-museu-fora-do-tempo/releases/latest) e abra PARADOXO.exe, mantendo PARADOXO.pck ao lado dele. Não execute o jogo diretamente de dentro do ZIP.
+No [navegador](https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/), toque em Entrar no museu. No Windows, extraia o ZIP da [Release](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest) e abra PARADOXO.exe, mantendo PARADOXO.pck ao lado dele. Não execute o jogo diretamente de dentro do ZIP.
 
 Escolha Começar uma jornada, informe um nome ou apelido e selecione explicitamente personagem e modo. Esses três campos são obrigatórios. Para voltar a uma jornada salva, use Continuar.
 
