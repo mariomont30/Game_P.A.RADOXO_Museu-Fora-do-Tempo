@@ -1,4 +1,4 @@
-P.A.RADOXO 2.12 — O Museu Fora do Tempo
+P.A.RADOXO 2.13 — O Museu Fora do Tempo
 
 Hospede todos os arquivos juntos em HTTP(S); abra index.html pelo servidor.
 
@@ -12,4 +12,4 @@ As jornadas da versão anterior são preservadas ao abrir no mesmo usuário do W
 Disciplina: Res problemas nat discreta
 Professor: Rubens Rodrigues
 
-Veja docs/ALTERACOES-2.12.md e docs/AVALIACAO.md.
+Veja docs/ALTERACOES-2.13.md e docs/AVALIACAO.md.

@@ -93,7 +93,8 @@ body {
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
 <meta name="description" content="Restaure um museu fora do tempo com progressões aritméticas.">
-	<link rel="stylesheet" href="mobile.css">
+	<meta name="application-version" content="2.13.0">
+<link rel="stylesheet" href="mobile.css">
 </head>
 	<body>
 		<section id="welcome" aria-labelledby="welcomeTitle"><div><p class="eyebrow">UMA AVENTURA DE RESTAURAÇÃO</p><h1 id="welcomeTitle">P.A.RADOXO</h1><h2>O Museu Fora do Tempo</h2><p>Restaure 12 obras, descubra padrões e devolva vida às histórias.</p><button id="enterMuseum">Entrar no museu</button><p class="small">No celular, jogue na horizontal. Toque para caminhar e use os botões da tela. Suas jornadas ficam salvas neste navegador.</p></div></section><section id="rotate" role="status"><div><div class="phoneIcon" aria-hidden="true">↻</div><h2>Gire o celular</h2><p>O museu foi preparado para jogar na horizontal.</p><p class="small">Se necessário, habilite a rotação automática do aparelho.</p></div></section><dialog id="nameDialog"><form id="nameForm"><h2>Como podemos chamar você?</h2><label for="mobileName">Seu nome ou apelido</label><input id="mobileName" type="text" autocomplete="off" autocapitalize="words" enterkeyhint="done"><p class="small">Até 20 caracteres. Acentos e emojis são aceitos.</p><div class="actions"><button id="cancelName" type="button">Voltar</button><button type="submit">Usar este nome</button></div></form></dialog><canvas id="canvas">
@@ -110,7 +111,18 @@ body {
 			<div id="status-notice"></div>
 		</div>
 
-		<script src="mobile.js"></script>
+		<script>
+const paradoxoFetch=window.fetch.bind(window);
+window.fetch=function(input,options){
+ const resource=new URL(typeof input==='string'?input:input.url,location.href);
+ if(resource.origin===location.origin&&resource.pathname.endsWith('/index.pck')){
+  resource.searchParams.set('v','2.13.0');
+  return paradoxoFetch(resource.href,options);
+ }
+ return paradoxoFetch(input,options);
+};
+</script>
+<script src="mobile.js"></script>
 <script>
 const originalFetch=window.fetch.bind(window);
 window.fetch=async function(input,options){
@@ -130,7 +142,7 @@ window.fetch=async function(input,options){
 </script>
 <script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":7411480,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":7411736,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
 const engine = new Engine(GODOT_CONFIG);
 
