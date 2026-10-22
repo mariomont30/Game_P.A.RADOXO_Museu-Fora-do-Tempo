@@ -1,0 +1,13 @@
+* text=auto
+*.gd text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.godot text eol=lf
+*.tscn text eol=lf
+*.cfg text eol=lf
+*.wav binary
+*.ttf binary
+*.png binary
+*.pck binary
+*.gz binary

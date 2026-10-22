@@ -1,0 +1,22 @@
+# Godot: cache e arquivos locais; preservar .import e .uid do projeto.
+**/.godot/
+**/Godot/app_userdata/
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+# Distribuições são publicadas nas Releases.
+/build/
+/dist/
+*.zip
+*.tpz
+*.exe
+*.pck
+!index.pck
+# Ambientes e credenciais locais.
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+export_credentials.cfg

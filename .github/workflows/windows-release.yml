@@ -1,0 +1,90 @@
+name: Windows — verificar e publicar
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [gh-pages]
+    paths:
+      - 'game/**'
+      - 'tools/package_release.py'
+      - '.github/workflows/windows-release.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ler versão do projeto
+        id: version
+        run: |
+          VERSION=$(sed -n 's/^config\/version="\([^"]*\)"/\1/p' game/project.godot)
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Validar banco de questões
+        run: python3 game/validate_bank.py
+      - name: Instalar Godot 4.7.2 e template Windows oficial
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable
+          curl --fail --location --retry 3 "$BASE/Godot_v4.7.2-stable_linux.x86_64.zip" -o "$RUNNER_TEMP/godot.zip"
+          echo "cadd3204e728a35d3f13adb7fd0d7902636b79f6b95c40c265eb73b6c35329e4  $RUNNER_TEMP/godot.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v4.7.2-stable_linux.x86_64"
+          echo "$RUNNER_TEMP/godot" >> "$GITHUB_PATH"
+          curl --fail --location --retry 3 "$BASE/Godot_v4.7.2-stable_export_templates.tpz" -o "$RUNNER_TEMP/templates.tpz"
+          echo "f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011  $RUNNER_TEMP/templates.tpz" | sha256sum --check
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          unzip -p "$RUNNER_TEMP/templates.tpz" templates/windows_release_x86_64.exe > "$HOME/.local/share/godot/export_templates/4.7.2.stable/windows_release_x86_64.exe"
+      - name: Importar e verificar o projeto
+        run: |
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path game --editor --quit
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path game -- --smoke
+      - name: Exportar Windows e verificar os pacotes
+        run: |
+          mkdir -p build/windows
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path game --export-release Windows ../build/windows/PARADOXO.exe
+          python3 tools/package_release.py
+      - name: Publicar Release com download direto
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            echo 'Release já existe. Preserve os downloads publicados e incremente config/version para uma nova distribuição.'
+            exit 0
+          fi
+          cat > "$RUNNER_TEMP/release-notes.md" <<'NOTES'
+          ## P.A.RADOXO — O Museu Fora do Tempo
+
+          Explore três galerias, restaure 12 obras e descubra os padrões da Progressão Aritmética com Tico.
+
+          ### Jogar no PC ou notebook Windows
+
+          Baixe **PARADOXO-Windows.zip**, extraia todos os arquivos e abra **PARADOXO.exe**. Mantenha **PARADOXO.pck** ao lado do executável. Windows de 64 bits e suporte a OpenGL 3.3; não requer Godot instalado. Depois do download, funciona sem internet. O executável não possui assinatura digital.
+
+          ### Arquivos
+
+          - **PARADOXO-Windows.zip** — jogo pronto para Windows.
+          - **PARADOXO-Projeto.zip** — projeto Godot editável, recursos e documentação.
+          - **SHA256SUMS.txt** — hashes para conferir os downloads.
+
+          Jogue online: https://mariomont30.github.io/paradoxo-museu-fora-do-tempo/
+
+          Versão 2.14 com galerias ampliadas no celular, ajustes das configurações móveis e botão “Retornar aos créditos” por toque. Inclui as alterações mais recentes do projeto. Trilhas e comportamento do computador preservados.
+          NOTES
+          gh release create "$RELEASE_TAG" --target "$GITHUB_SHA" --title "P.A.RADOXO $RELEASE_TAG · O Museu Fora do Tempo" --notes-file "$RUNNER_TEMP/release-notes.md" --draft
+          gh release upload "$RELEASE_TAG" dist/PARADOXO-Windows.zip dist/PARADOXO-Projeto.zip dist/SHA256SUMS.txt
+          gh release edit "$RELEASE_TAG" --draft=false --latest
