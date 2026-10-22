@@ -1,0 +1,15 @@
+P.A.RADOXO 2.12 — O Museu Fora do Tempo
+
+Hospede todos os arquivos juntos em HTTP(S); abra index.html pelo servidor.
+
+Web móvel: toque em Entrar no museu, jogue na horizontal e use os controles da tela. Arraste os textos para rolar; nos créditos pausados, toque em Retomar letras. As jornadas ficam neste navegador/endereço; não há sincronização automática.
+
+Setas, botões direcionais ou clique: caminhar. Clique numa exposição para aproximar-se. Examinar: abrir obra. Esc ou Enter: caminhar ao banco e pausar depois de sentar; retomar depois de levantar. O clique no banco não pausa. Cada galeria começa no banco. Menus: setas e Espaço. Textos em foco: setas e Page Up/Down. F11: tela cheia/janela.
+
+Normal: 2 vidas e sem tempo. Difícil: 2 vidas e cronômetro. Dois erros diferentes confirmados provocam colapso. No Difícil, tempo esgotado também custa vida.
+
+As jornadas da versão anterior são preservadas ao abrir no mesmo usuário do Windows.
+Disciplina: Res problemas nat discreta
+Professor: Rubens Rodrigues
+
+Veja docs/ALTERACOES-2.12.md e docs/AVALIACAO.md.
