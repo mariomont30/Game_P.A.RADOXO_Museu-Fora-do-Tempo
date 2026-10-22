@@ -2,8 +2,7 @@
 
 <img src="media/capturas/abertura.png" alt="P.A.RADOXO: os exploradores no museu isométrico" width="100%">
 
-# P.A.RADOXO
-### O Museu Fora do Tempo
+# P.A.RADOXO — O Museu Fora do Tempo · Game
 
 **Cada descoberta devolve uma história.**
 
