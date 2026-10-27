@@ -12,7 +12,7 @@ Uma aventura de exploração e restauração em que a matemática faz o tempo vo
 [![Baixar para Windows](https://img.shields.io/badge/BAIXAR_PARA_WINDOWS-PC_e_Notebook-e9c78b?style=for-the-badge)](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest/download/PARADOXO-Windows.zip)
 
 ![Godot](https://img.shields.io/badge/Godot-4.7.2-478cbf?logo=godotengine&logoColor=white)
-![Versão](https://img.shields.io/badge/Versão-2.15.0-e9c78b)
+![Versão](https://img.shields.io/badge/Versão-2.16.0-e9c78b)
 ![Idioma](https://img.shields.io/badge/Idioma-Português_BR-8adbc1)
 ![Tema](https://img.shields.io/badge/Matemática-Progressão_Aritmética-54617d)
 
@@ -22,9 +22,9 @@ Uma aventura de exploração e restauração em que a matemática faz o tempo vo
 
 ## Um museu que precisa de você
 
-Na véspera de uma exposição, quadros perdem suas cores e invenções começam a se desfazer. Para proteger o acervo, o Curador aciona o Relógio Central — e prende o museu no mesmo instante.
+Na véspera de uma exposição, quadros perdem suas cores e invenções começam a se desfazer. Para proteger o acervo, o Curador aciona o Relógio Central e prende o museu no mesmo instante.
 
-Você chega como aprendiz de restauração. Ao seu lado está **Tico**, um pequeno robô em forma de relógio que orienta os visitantes. Suas memórias se espalharam por três engrenagens; uma lembrança resistiu: **cada padrão guarda uma pista**.
+Você chega como aprendiz de restauração. Ao seu lado está **Tico**, um pequeno robô em forma de relógio que orienta os visitantes. Suas memórias se espalharam por três engrenagens. Uma lembrança resistiu: **cada padrão guarda uma pista**.
 
 Explore as salas, resolva desafios de Progressão Aritmética e restaure **12 obras** para devolver ao museu suas histórias e seu amanhã.
 
@@ -77,7 +77,9 @@ No celular, jogue **na horizontal**. Toque em **Entrar no museu**, informe seu n
 
 ## Aprender enquanto explora
 
-- **1.050 questões**, divididas entre dois modos, com variações numéricas e alternativas embaralhadas.
+- **4.200 questões**, com 2.100 por modo e 300 por conteúdo. As respostas positivas, negativas e zero têm a mesma distribuição nos dois modos.
+- Sequências, registros, tabelas, mecanismos e restaurações apresentam os desafios de formas diferentes. O Difícil exige mais etapas de raciocínio.
+- O sorteio evita questões já vistas na jornada, varia os formatos e equilibra as posições corretas sem ciclos fixos. Pausar ou retomar preserva a ordem das alternativas.
 - Reconhecimento e classificação de P.A., continuação de sequências, razão, termo geral, primeiro termo, posição e soma.
 - **Caderno de Tico** com explicações, fórmulas e exemplos; dicas para apoiar a resolução.
 - Obras restauradas podem ser observadas em destaque, com sua aparência recuperada.
@@ -162,3 +164,7 @@ Para editar, abra **[game/project.godot](game/project.godot)** no **Godot 4.7.2*
 [Jogar agora](https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/) · [Baixar para Windows](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest/download/PARADOXO-Windows.zip)
 
 </div>
+
+## Atualização do banco de questões
+
+A versão 2.16 recalcula e verifica as 4.200 respostas, os enunciados exibidos e as contas das soluções. O banco anterior é mantido somente para validar questões de jornadas já salvas. [Veja a auditoria e os testes](docs/historico/ALTERACOES-2.16.md).

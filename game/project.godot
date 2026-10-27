@@ -5,7 +5,7 @@ config/name="P.A.RADOXO — O Museu Fora do Tempo"
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/description="Uma aventura sobre progressões aritméticas."
-config/version="2.15.0"
+config/version="2.16.0"
 config/icon="res://icon.svg"
 boot_splash/show_image=false
 

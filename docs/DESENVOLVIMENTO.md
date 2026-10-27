@@ -15,9 +15,10 @@ python game/validate_bank.py
 godot --headless --path game --editor --quit
 godot --headless --path game -- --smoke
 godot --headless --path game --script ../tests/gameover.gd
+godot --headless --path game --script ../tests/questions.gd
 ```
 
-O primeiro comando recalcula as respostas das 1.050 questões. O último executa a verificação interna. Testes automáticos não substituem o ensaio visual e a avaliação em aparelhos físicos.
+O primeiro comando reconstrói as respostas a partir dos dados exibidos nas 4.200 questões e confere também as contas das soluções. Os testes Godot verificam o GAME OVER, 45.000 sorteios e 100.000 posições de alternativas, além de salvamento e migração de jornadas antigas. Testes automáticos não substituem o ensaio visual e a avaliação em aparelhos físicos.
 
 ## Exportar para Windows
 
@@ -55,3 +56,7 @@ python game/tools/build_credits.py
 ```
 
 Esses scripts geram as músicas. Os efeitos curtos existentes continuam em `game/audio/`. O código de geração usa somente a biblioteca padrão do Python.
+
+## Gerar e auditar o banco
+
+Execute `python game/tools/build_questions.py` para gerar o banco de forma reproduzível. Depois execute `python game/validate_bank.py`, que usa cálculos independentes com frações exatas. O arquivo `questions_legacy_215.json` é somente uma referência canônica para salvamentos antigos e não participa do sorteio. A semente dos testes é fixa para reproduzir falhas. No jogo, o sorteio é aleatório.

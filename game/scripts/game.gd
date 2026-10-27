@@ -7,6 +7,7 @@ const Audio=preload("res://scripts/audio.gd")
 const Title=preload("res://scripts/title.gd")
 const Character=preload("res://scripts/character_view.gd")
 const MobileLayout=preload("res://scripts/mobile_layout.gd")
+const QuestionDraw=preload("res://scripts/question_draw.gd")
 const SAVE="user://paradoxo_v2.json"
 const ENDED_SAVE="user://paradoxo_ended_journeys.json"
 const ROOMS=["Galeria de Arte","História Natural","Salão das Invenções"]
@@ -16,6 +17,8 @@ const FACTS=["Paisagens podem contar histórias usando apenas cor, luz e composi
 var art: Control
 var audio: Node
 var db: Array=[]
+var legacy_db: Array=[]
+var question_by_id: Dictionary={}
 var profiles: Array=[]
 var current: Dictionary={}
 var question: Dictionary={}
@@ -112,6 +115,8 @@ func _ready() -> void:
 	testing="--smoke" in OS.get_cmdline_user_args()
 	randomize()
 	db=JSON.parse_string(FileAccess.get_file_as_string("res://data/questions.json"))
+	legacy_db=JSON.parse_string(FileAccess.get_file_as_string("res://data/questions_legacy_215.json"))
+	for item in legacy_db+db: question_by_id[item.id]=item
 	load_save()
 	art=Museum.new(); art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); add_child(art)
 	art.reached_exhibit.connect(interact)
@@ -269,7 +274,7 @@ func clean_name(value: String,fallback: bool=true) -> String:
 
 func create_profile(player_name: String,mode: String) -> void:
 	learning_scroll_position=0
-	current={"id":str(Time.get_unix_time_from_system())+str(randi()%1000),"name":clean_name(player_name),"gender":gender,"mode":mode,"done":[],"seen":[],"active":{},"lives":2,"rules_version":4,"room":0,"hero":[4.5,5.8],"tutorial":true,"phase":"world","balance":[0,0,0,0],"attempts":0,"correct":0,"hints_used":0,"learning":{},"defeats":0,"last_defeat_timeout":false}
+	current={"id":str(Time.get_unix_time_from_system())+str(randi()%1000),"name":clean_name(player_name),"gender":gender,"mode":mode,"done":[],"seen":[],"active":{},"lives":2,"rules_version":4,"room":0,"hero":[4.5,5.8],"tutorial":true,"phase":"world","balance":[0,0,0,0],"attempts":0,"correct":0,"hints_used":0,"learning":{},"defeats":0,"last_defeat_timeout":false,"draw_state":{},"last_answer_position":-1}
 	profiles.append(current)
 	art.gender=gender
 	mission=0; room=0
@@ -478,27 +483,40 @@ func enter_gallery(index: int) -> void:
 	art.hero=art.BENCH_EXIT; current.hero=[art.hero.x,art.hero.y]
 	world(true)
 
+func question_math_key(q: Dictionary) -> String:
+	var t: int=int(q.topic)
+	var n: int=0 if t in [0,2] else 5 if t==1 and not q.has("revision") else int(q.n)
+	return "%s:%d:%d:%d:%d" % [q.mode,t,int(q.a),int(q.r),n]
+
 func start_question() -> void:
 	if mission>=12: return
+	var seen_math: Dictionary={}
+	for id in current.seen:
+		if question_by_id.has(id): seen_math[question_math_key(question_by_id[id])]=true
 	var pool: Array=[]
 	for q in db:
-		if q.mode==current.mode and int(q.topic)==TOPICS[mission] and q.id not in current.seen: pool.append(q)
+		if q.mode==current.mode and int(q.topic)==TOPICS[mission] and q.id not in current.seen and not seen_math.has(question_math_key(q)): pool.append(q)
+	var draw_key: String=str(current.mode)+":"+str(TOPICS[mission])
 	if pool.is_empty():
-		info("Este conteúdo foi todo explorado","Não restam questões inéditas deste conteúdo no seu perfil. Deseja revisar? Os outros históricos serão preservados.",func():
+		var retained_time: float=time_left if screen=="challenge" and not answered and current.mode=="hard" else -1.0
+		info("Este conteúdo foi todo explorado","Você já viu as questões deste conteúdo. Quer revisar? O histórico dos outros assuntos será preservado.",func():
 			var ids: Array=[]
-			for q in db:
+			for q in question_by_id.values():
 				if q.mode==current.mode and int(q.topic)==TOPICS[mission]: ids.append(q.id)
 			current.seen=current.seen.filter(func(id): return id not in ids)
-			close_overlay(); start_question(),"Revisar este conteúdo")
+			var state: Dictionary=current.get("draw_state",{}); state.erase(draw_key); current.draw_state=state
+			close_overlay(); start_question()
+			if retained_time>=0 and screen=="challenge":
+				time_left=minf(time_left,retained_time); update_timer(); update_snapshot(); save_game(),"Revisar este conteúdo")
 		return
-	question=pool.pick_random().duplicate(true)
-	# Balanced correct positions, randomized within a tied least-used bucket.
+	var draw_state: Dictionary=current.get("draw_state",{})
+	var state: Dictionary=draw_state.get(draw_key,{})
+	question=QuestionDraw.choose(pool,state).duplicate(true)
+	draw_state[draw_key]=QuestionDraw.record(state,question); current.draw_state=draw_state
+	# Soft balance avoids a predictable four-question rotation.
 	var balance: Array=current.get("balance",[0,0,0,0])
-	var least: float=float(balance.min())
-	var positions: Array=[]
-	for i in range(4):
-		if float(balance[i])==least: positions.append(i)
-	var target: int=positions.pick_random()
+	var target: int=QuestionDraw.answer_position(balance,int(current.get("last_answer_position",-1)))
+	current.last_answer_position=target
 	var options: Array=question.options.filter(func(v): return v!=question.answer)
 	options.shuffle(); options.insert(target,question.answer); question.options=options
 	balance[target]=int(balance[target])+1; current.balance=balance
@@ -792,7 +810,7 @@ func show_hint() -> void:
 	hints+=1; current.hints_used=int(current.hints_used)+1
 	record_learning("dicas")
 	status.text=str(question.hint)
-	if hints==2: status.text="Identifique: a₁ = %s, r = %s, n = %s. Consulte a fórmula correspondente."%[question.a,question.r,question.n]
+	if hints==2: status.text=str(question.hint_steps[1]) if question.has("hint_steps") else "Identifique: a₁ = %s, r = %s, n = %s. Consulte a fórmula correspondente."%[question.a,question.r,question.n]
 	if hints>=3: status.text=solution_text()
 	update_snapshot(); save_game()
 
@@ -1190,6 +1208,7 @@ func valid_profile(p: Variant) -> bool:
 	if not number_in(p.get("rules_version",0),0,4): return false
 	if not number_in(p.get("defeats",0),0,2): return false
 	if not p.get("last_defeat_timeout",false) is bool: return false
+	if not number_in(p.get("last_answer_position",-1),-1,3): return false
 	var balance: Variant=p.get("balance",[0,0,0,0])
 	if not balance is Array or balance.size()!=4: return false
 	for count in balance:
@@ -1201,6 +1220,20 @@ func valid_profile(p: Variant) -> bool:
 		for metric in learning[key]:
 			if metric not in ["sem_ajuda","com_ajuda","erros","puladas","tempo_esgotado","dicas"]: return false
 			if not number_in(learning[key][metric],0,100000000): return false
+	var draws: Variant=p.get("draw_state",{})
+	if not draws is Dictionary or draws.size()>14: return false
+	for draw_key in draws:
+		if draw_key not in ["normal:0","normal:1","normal:2","normal:3","normal:4","normal:5","normal:6","hard:0","hard:1","hard:2","hard:3","hard:4","hard:5","hard:6"]: return false
+		var state: Variant=draws[draw_key]
+		if not state is Dictionary or not state.get("families",{}) is Dictionary or state.get("families",{}).size()>5: return false
+		for family in state.get("families",{}):
+			if family not in ["sequencia","registros","tabela","mecanismo","restauracao"]: return false
+			if not number_in(state.families[family],0,100000000): return false
+		for key in ["sign_streak","trend_streak"]:
+			if not number_in(state.get(key,0),0,100000000): return false
+		if state.get("last_family","") not in ["","sequencia","registros","tabela","mecanismo","restauracao"]: return false
+		if state.get("last_sign","") not in ["","label","positive","negative","zero"]: return false
+		if state.get("last_trend","") not in ["","increasing","decreasing","constant","irregular"]: return false
 	if p.active.is_empty(): return true
 	var active: Dictionary=p.active
 	if not number_in(active.get("mission"),0,11) or not number_in(active.get("remaining"),0,120,false): return false
@@ -1234,16 +1267,14 @@ func valid_profile(p: Variant) -> bool:
 				if not value is String: return false
 	# Reject a modified/malformed question instead of trusting a saved answer key.
 	if int(q.topic)!=7:
-		var found: bool=false
-		for source in db:
-			if source.id!=q.id: continue
-			found=true
-			for key in ["mode","answer","prompt","hint","solution","topic","a","r","n","time"]:
-				if source[key]!=q[key]: return false
-			for option in unique:
-				if option not in source.options: return false
-			break
-		if not found: return false
+		if not question_by_id.has(q.id): return false
+		var source: Dictionary=question_by_id[q.id]
+		for key in ["mode","answer","prompt","hint","solution","topic","a","r","n","time"]:
+			if source[key]!=q[key]: return false
+		for key in ["revision","family","answer_sign","trend","givens","hint_steps"]:
+			if source.has(key) and source[key]!=q.get(key): return false
+		for option in unique:
+			if option not in source.options: return false
 	return true
 
 func valid_save(value: Variant) -> bool:
@@ -1267,8 +1298,18 @@ func normalize_profile(p: Dictionary) -> Dictionary:
 	var old_max: int=2 if int(p.get("rules_version",0))>=4 else 5 if p.mode=="normal" else 3
 	clean.lives=clampi(2-(old_max-int(p.lives)),0,2); clean.rules_version=4
 	clean.balance=p.get("balance",[0,0,0,0]).map(func(n): return int(n))
+	clean.last_answer_position=int(p.get("last_answer_position",-1))
+	if not p.has("last_answer_position") and not p.active.is_empty():
+		clean.last_answer_position=p.active.question.options.find(p.active.question.answer)
 	for key in ["attempts","correct","hints_used","skipped"]: clean[key]=int(p.get(key,0))
 	clean.learning=p.get("learning",{}).duplicate(true)
+	clean.draw_state=p.get("draw_state",{}).duplicate(true)
+	for draw_key in clean.draw_state:
+		var state: Dictionary=clean.draw_state[draw_key]
+		for metric in ["sign_streak","trend_streak"]: state[metric]=int(state.get(metric,0))
+		var counts: Dictionary=state.get("families",{})
+		for family in counts: counts[family]=int(counts[family])
+		state.families=counts
 	clean.defeats=maxi(int(p.get("defeats",0)),1 if clean.lives<=0 else 0)
 	clean.last_defeat_timeout=bool(p.get("last_defeat_timeout",false))
 	return clean
@@ -1330,7 +1371,7 @@ func smoke_test() -> void:
 	set_process(false)
 	var saved_profiles: Array=profiles.duplicate(true)
 	var saved_settings: Dictionary=settings.duplicate(true)
-	assert(db.size()==1050)
+	assert(db.size()==4200)
 	assert(clean_name(" João ★ 💜 ")=="João ★ 💜")
 	assert(clean_name("abcdefghijklmnopqrstu").length()==20)
 	assert(clean_name("\n\t ")=="Explorador")
@@ -1356,7 +1397,7 @@ func smoke_test() -> void:
 				await get_tree().process_frame
 			assert(current.done.size()==12)
 			assert(current.seen.size()==12)
-			assert(int(current.balance.max())-int(current.balance.min())<=1)
+			assert(int(current.balance.max())-int(current.balance.min())<=3)
 			ending()
 	# Continuation must preserve question, order, answer selection, clock and charges.
 	create_profile("Persistência ♡","hard"); current.tutorial=true

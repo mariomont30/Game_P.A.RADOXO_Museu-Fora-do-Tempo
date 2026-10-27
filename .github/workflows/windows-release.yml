@@ -52,6 +52,7 @@ jobs:
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --editor --quit
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game -- --smoke
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/gameover.gd
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/questions.gd
       - name: Exportar Windows e verificar os pacotes
         run: |
           mkdir -p build/windows
@@ -85,7 +86,7 @@ jobs:
 
           Jogue online: https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/
 
-          Versão 2.15 com GAME OVER, uma tentativa extra por jornada e perda do progresso da jornada na segunda derrota. A contagem é salva e não reinicia ao voltar ao menu. A segunda derrota tem um efeito sonoro triste próprio. Menu de pausa com cenário ao fundo, textos revisados e painel Meu aprendizado com cards adaptados ao computador e ao celular. Outras jornadas, configurações e músicas existentes são preservadas.
+          Versão 2.16 com 4.200 questões verificadas, 2.100 por modo. O banco equilibra os sinais das respostas, oferece cinco formatos por conteúdo e usa alternativas plausíveis. O sorteio evita repetições na jornada e varia a posição correta sem ciclos fixos. A ordem e o tempo da questão atual são preservados ao retomar, inclusive em jornadas da versão anterior. As regras de GAME OVER e as músicas existentes são mantidas.
           NOTES
           gh release create "$RELEASE_TAG" --target "$GITHUB_SHA" --title "P.A.RADOXO $RELEASE_TAG · O Museu Fora do Tempo" --notes-file "$RUNNER_TEMP/release-notes.md" --draft
           gh release upload "$RELEASE_TAG" dist/PARADOXO-Windows.zip dist/PARADOXO-Projeto.zip dist/SHA256SUMS.txt

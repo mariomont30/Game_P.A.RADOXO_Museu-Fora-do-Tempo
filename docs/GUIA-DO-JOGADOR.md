@@ -43,3 +43,9 @@ O salvamento é local. Use o mesmo navegador e endereço para continuar a versã
 ## Final e créditos
 
 Veja seu aprendizado e as obras restauradas. Nos créditos, Pausar interrompe apenas as letras; música e cenários continuam. Esc ou Enter pausam e retomam. No celular, há também Retornar aos créditos enquanto as letras estão paradas. Sair para o menu principal encerra a leitura. Com movimento reduzido, a rolagem é manual.
+
+## Perguntas e alternativas
+
+São 4.200 questões, com 2.100 em cada modo. O Normal também apresenta respostas negativas e zero. No Difícil, a dificuldade vem das etapas e da interpretação dos dados. Cada conteúdo tem cinco formatos de apresentação.
+
+O jogo guarda as questões vistas na jornada e varia os próximos sorteios. As respostas corretas mudam de posição entre perguntas, sem um ciclo fixo. A ordem da pergunta atual permanece igual ao pausar ou continuar uma jornada. Se você esgotar as questões de um conteúdo, o jogo pede autorização para revisá-lo.

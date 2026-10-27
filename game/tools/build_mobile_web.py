@@ -10,7 +10,7 @@ const paradoxoFetch=window.fetch.bind(window);
 window.fetch=function(input,options){
  const resource=new URL(typeof input==='string'?input:input.url,location.href);
  if(resource.origin===location.origin&&resource.pathname.endsWith('/index.pck')){
-  resource.searchParams.set('v','2.15.0');
+  resource.searchParams.set('v','2.16.0');
   return paradoxoFetch(resource.href,options);
  }
  return paradoxoFetch(input,options);
@@ -18,7 +18,7 @@ window.fetch=function(input,options){
 </script>
 <script src="mobile.js"></script>''')
 s=s.replace('P.A.RADOXO — O Museu Fora do Tempo','P.A.RADOXO | O Museu Fora do Tempo')
-s=s.replace('</head>','<meta name="application-version" content="2.15.0">\n</head>')
+s=s.replace('</head>','<meta name="application-version" content="2.16.0">\n</head>')
 s=s.replace('</head>','<link rel="stylesheet" href="mobile.css">\n</head>')
 s=s.replace('<canvas id="canvas">', '<section id="welcome" aria-labelledby="welcomeTitle"><div><p class="eyebrow">UMA AVENTURA DE RESTAURAÇÃO</p><h1 id="welcomeTitle">P.A.RADOXO</h1><h2>O Museu Fora do Tempo</h2><p>Restaure 12 obras, descubra padrões e devolva vida às histórias.</p><button id="enterMuseum">Entrar no museu</button><p class="small">No celular, jogue na horizontal. Toque para caminhar e use os botões da tela. Suas jornadas ficam salvas neste navegador.</p></div></section><section id="rotate" role="status"><div><div class="phoneIcon" aria-hidden="true">↻</div><h2>Gire o celular</h2><p>O museu foi preparado para jogar na horizontal.</p><p class="small">Se necessário, habilite a rotação automática do aparelho.</p></div></section><dialog id="nameDialog"><form id="nameForm"><h2>Como podemos chamar você?</h2><label for="mobileName">Seu nome ou apelido</label><input id="mobileName" type="text" autocomplete="off" autocapitalize="words" enterkeyhint="done"><p class="small">Até 20 caracteres. Acentos e emojis são aceitos.</p><div class="actions"><button id="cancelName" type="button">Voltar</button><button type="submit">Usar este nome</button></div></form></dialog><canvas id="canvas">')
 s=s.replace("engine.startGame({", "window.paradoxo.start = () => engine.startGame({")
