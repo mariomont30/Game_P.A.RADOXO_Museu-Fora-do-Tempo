@@ -69,22 +69,26 @@ func place(c: Control,r: Rect2,parent: Node=null) -> Control:
 			if ui_feedback.is_valid(): ui_feedback.call())
 	return c
 
+func human_text(value: String) -> String:
+	var out: String=value.replace(" — ",". ").replace(" – ",", ").replace("; ",". ").replace(";",".")
+	return out
+
 func label_at(text: String,r: Rect2,n: int=20,color: Color=WHITE,parent: Node=null) -> Label:
 	var l:=Label.new()
 	l.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	l.add_theme_color_override("font_color",color)
 	l.add_theme_font_size_override("font_size",n+(2 if settings.large else 0))
 	l.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
-	if n<=27:
+	if n<=27 and text.length()>75:
 		l.horizontal_alignment=HORIZONTAL_ALIGNMENT_FILL
 		l.justification_flags=TextServer.JUSTIFICATION_WORD_BOUND | TextServer.JUSTIFICATION_SKIP_LAST_LINE
 	place(l,r,parent)
-	l.text=text
+	l.text=human_text(text)
 	return l
 
 func button(text: String,r: Rect2,action: Callable,primary: bool=false,parent: Node=null) -> Button:
 	var b:=Button.new()
-	b.text=text
+	b.text=human_text(text)
 	b.mouse_default_cursor_shape=Control.CURSOR_POINTING_HAND
 	b.add_theme_font_size_override("font_size",18+(1 if settings.large else 0))
 	for key in ["font_color","font_focus_color"]: b.add_theme_color_override(key,INK if primary else WHITE)
@@ -165,6 +169,8 @@ func info(title: String,body: String,action: Callable=Callable(),caption: String
 	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
 	place(scroll,Rect2(x+40,body_y,width-80,body_height),overlay)
 	var text_label:=label_at(body,Rect2(0,0,text_width,0),22,WHITE,scroll)
+	text_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_FILL
+	text_label.justification_flags=TextServer.JUSTIFICATION_WORD_BOUND | TextServer.JUSTIFICATION_SKIP_LAST_LINE
 	padded_scroll_content(scroll,text_label)
 	var back:=button("Voltar",Rect2(x+40,footer_y,180,52),close_overlay,false,overlay)
 	if action.is_valid(): button(caption,Rect2(x+width-40-365,footer_y,365,52),action,true,overlay)
@@ -176,6 +182,8 @@ func prose(text: String, rect: Rect2, font_size: int=22) -> void:
 	scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
 	place(scroll,rect)
 	var body:=label_at(text,Rect2(0,0,rect.size.x-24,0),font_size,WHITE,scroll)
+	body.horizontal_alignment=HORIZONTAL_ALIGNMENT_FILL
+	body.justification_flags=TextServer.JUSTIFICATION_WORD_BOUND | TextServer.JUSTIFICATION_SKIP_LAST_LINE
 	padded_scroll_content(scroll,body)
 
 func keyboard_controls(root: Node) -> Array[Control]:

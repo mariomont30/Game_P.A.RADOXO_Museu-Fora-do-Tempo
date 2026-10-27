@@ -32,7 +32,7 @@ def package() -> None:
         'O progresso e local ao dispositivo; nao ha sincronizacao entre Web e Windows.\n', encoding='utf-8')
     targets = [('PARADOXO-Windows.zip', [(p, Path('PARADOXO-Windows') / p.relative_to(BUILD)) for p in BUILD.rglob('*') if p.is_file()])]
     source = []
-    for folder in ('game', 'docs', 'licenses', 'media', 'tools'):
+    for folder in ('game', 'docs', 'licenses', 'media', 'tools', 'tests'):
         for p in (ROOT / folder).rglob('*'):
             if p.is_file() and not any(part in ('.godot', 'Godot', '__pycache__') for part in p.relative_to(ROOT).parts):
                 source.append((p, Path('PARADOXO-Projeto') / p.relative_to(ROOT)))

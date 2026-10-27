@@ -43,6 +43,8 @@ var camera := Vector2.ZERO
 var restore_index: int = -1
 var restore_time: float = 0
 var collapse_time: float = 0
+var defeat_active: bool=false
+var defeat_amount: float=0.0
 var celebration: float = 0
 var step_time: float = 0
 var view_scale: float = 0.94
@@ -209,6 +211,8 @@ func _draw() -> void:
 		view_scale=minf(presentation_rect.size.x/bounds.size.x,presentation_rect.size.y/bounds.size.y)
 		origin=presentation_rect.get_center()-bounds.get_center()*view_scale
 		offset=Vector2.ZERO
+	if defeat_active and not reduced:
+		view_scale*=1.0+.035*defeat_amount
 	draw_set_transform(origin+offset,0,Vector2.ONE*view_scale)
 	# Floating architectural plinth, shadows, tile seams and real-looking thickness.
 	ellipse(iso(Vector2(4.5,3.5))+Vector2(0,48),520,240,Color(0,0,0,.15))
@@ -259,7 +263,7 @@ func _draw() -> void:
 	# Little floating clock companion.
 	if not menu_mode:
 		var tico:=iso(Vector2(4.5,3.78).lerp(BENCH_EXIT,rise_progress) if seated else hero)+Vector2(35,-62+sin(time*2.2)*4)
-		clock(tico,13,Color("f2cc83"),true)
+		clock(tico+Vector2(0,8*defeat_amount),13,Color("f2cc83").lerp(Color("8a909b"),defeat_amount),not defeat_active)
 	if menu_mode and hovered>=0:
 		var base: Vector2=iso(POS[hovered],4)
 		draw_arc(base,57,0,TAU,48,Color(.54,.86,.76,.75),2,true)
@@ -521,11 +525,10 @@ func avatar(p: Vector2,scale_value: float=1,seated_pose: bool=false,look: float=
 	var stride: float=sin(walk_time)*5 if moving and not reduced else 0
 	var bob: float=absf(sin(walk_time))*1.5 if moving else sin(time*1.8)*.6
 	ellipse(p+Vector2(0,4),20,8,Color(0,0,0,.22))
-	if collapse_time>0 and not reduced:
-		for i in range(50):
-			var d: float=(1.6-collapse_time)*70
-			draw_rect(Rect2(p+Vector2(cos(i*2.4)*d,sin(i*2.4)*d-35),Vector2(3,3)),Color(.8,.95,.82,collapse_time/1.6))
-		return
+	if defeat_active:
+		bob=0
+		p.y+=defeat_amount*4
+		look=-.5*defeat_amount
 	p.y-=bob
 	var skin:=Color("d6a178") if female else Color("c78e68")
 	var hair:=Color("533b35") if female else Color("382c30")
@@ -574,7 +577,10 @@ func avatar(p: Vector2,scale_value: float=1,seated_pose: bool=false,look: float=
 	var fx: float=facing*2
 	draw_circle(p+Vector2(-5+fx,-59),1.5,Color("302c32"))
 	draw_circle(p+Vector2(5+fx,-59),1.5,Color("302c32"))
-	line(p+Vector2(-2+fx,-53),p+Vector2(3+fx,-53),Color("9e6353"),1)
+	if defeat_active:
+		line(p+Vector2(-3+fx,-51),p+Vector2(fx,-54),Color("9e6353"),1)
+		line(p+Vector2(fx,-54),p+Vector2(3+fx,-51),Color("9e6353"),1)
+	else: line(p+Vector2(-2+fx,-53),p+Vector2(3+fx,-53),Color("9e6353"),1)
 	if female: draw_circle(p+Vector2(-9,-55),2,Color("bd7a68"))
 	if celebration>0:
 		for i in range(5):

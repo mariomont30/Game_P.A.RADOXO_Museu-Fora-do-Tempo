@@ -1,15 +1,14 @@
-P.A.RADOXO 2.14 — O Museu Fora do Tempo
+P.A.RADOXO 2.15 | O Museu Fora do Tempo
 
-Hospede todos os arquivos juntos em HTTP(S); abra index.html pelo servidor.
+Jogue: https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/
+Windows: baixe a Release, extraia tudo e abra PARADOXO.exe ao lado de PARADOXO.pck.
+Projeto: game/project.godot, no Godot 4.7.2.
 
-Web móvel: toque em Entrar no museu, jogue na horizontal e use os controles da tela. Arraste os textos para rolar; nos créditos pausados, toque em Retomar letras. As jornadas ficam neste navegador/endereço; não há sincronização automática.
+GAME OVER: duas vidas por tentativa. A primeira derrota permite uma tentativa extra.
+A segunda derrota apaga todo o progresso da jornada atual e volta à tela inicial.
+Outras jornadas e configurações são preservadas. Sair do jogo não renova a tentativa.
+No Difícil, a tentativa extra tem um novo cronômetro, iniciado com a questão pronta.
 
-Setas, botões direcionais ou clique: caminhar. Clique numa exposição para aproximar-se. Examinar: abrir obra. Esc ou Enter: caminhar ao banco e pausar depois de sentar; retomar depois de levantar. O clique no banco não pausa. Cada galeria começa no banco. Menus: setas e Espaço. Textos em foco: setas e Page Up/Down. F11: tela cheia/janela.
-
-Normal: 2 vidas e sem tempo. Difícil: 2 vidas e cronômetro. Dois erros diferentes confirmados provocam colapso. No Difícil, tempo esgotado também custa vida.
-
-As jornadas da versão anterior são preservadas ao abrir no mesmo usuário do Windows.
-Disciplina: Res problemas nat discreta
-Professor: Rubens Rodrigues
-
-Veja docs/ALTERACOES-2.14.md e docs/AVALIACAO.md.
+Pausa com a galeria ao fundo. Meu aprendizado mostra um resumo e cards por conteúdo.
+No celular, jogue na horizontal e use os controles por toque.
+Consulte README.md e docs/GUIA-DO-JOGADOR.md.

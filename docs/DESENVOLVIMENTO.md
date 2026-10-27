@@ -14,6 +14,7 @@ Com Python 3 e Godot instalados:
 python game/validate_bank.py
 godot --headless --path game --editor --quit
 godot --headless --path game -- --smoke
+godot --headless --path game --script ../tests/gameover.gd
 ```
 
 O primeiro comando recalcula as respostas das 1.050 questões. O último executa a verificação interna. Testes automáticos não substituem o ensaio visual e a avaliação em aparelhos físicos.

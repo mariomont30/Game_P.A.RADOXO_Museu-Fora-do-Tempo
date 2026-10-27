@@ -8,6 +8,7 @@ const Title=preload("res://scripts/title.gd")
 const Character=preload("res://scripts/character_view.gd")
 const MobileLayout=preload("res://scripts/mobile_layout.gd")
 const SAVE="user://paradoxo_v2.json"
+const ENDED_SAVE="user://paradoxo_ended_journeys.json"
 const ROOMS=["Galeria de Arte","História Natural","Salão das Invenções"]
 const NAMES=["A paisagem despedaçada","A guardiã de mármore","Mosaico dos caminhos","O retrato impossível","O gigante esquecido","Cristais de origem","Espiral do passado","Vitrine das descobertas","Relógio dos padrões","O pequeno universo","Máquina dos ecos","O coração do museu"]
 const TOPICS=[1,2,3,0,3,4,5,1,2,6,4,6]
@@ -85,8 +86,21 @@ var setup_attempted: bool=false
 var setup_character_buttons: Array[Button]=[]
 var setup_mode_buttons: Array[Button]=[]
 var mobile_orientation_timer: float=0
+var ended_journeys: Array=[]
+var gameover_elapsed: float=0
+var gameover_final: bool=false
+var gameover_card: Control
+var gameover_shade: ColorRect
+var gameover_primary: Button
+var gameover_returning: bool=false
+var gameover_storage_ok: bool=true
+var question_ready: bool=false
+var learning_scroll: ScrollContainer
+var learning_book: bool=false
+var learning_scroll_position: int=0
 
 func _ready() -> void:
+	DisplayServer.window_set_title("P.A.RADOXO | O Museu Fora do Tempo")
 	mouse_filter=Control.MOUSE_FILTER_IGNORE
 	mobile_layout="--mobile" in OS.get_cmdline_user_args() or (OS.has_feature("web") and bool(JavaScriptBridge.eval("window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0")))
 	if mobile_layout: get_tree().root.content_scale_size=Vector2i(960,540)
@@ -123,6 +137,7 @@ func _apply_mobile_layout() -> void:
 	mobile_applying=false
 
 func reset_refs() -> void:
+	gameover_primary=null; gameover_card=null; gameover_shade=null
 	credit_scenes.clear()
 	credits_paused=false; credit_button=null; credit_hint=null; credit_viewport=null; credit_resume_button=null
 	character_view=null; title_label=null; answer_buttons=[]; bench_button=null
@@ -131,8 +146,11 @@ func reset_refs() -> void:
 	clear_ui()
 
 func menu() -> void:
+	learning_book=false
+	art.defeat_amount=0; art.defeat_active=false; art.modulate=Color.WHITE
 	cancel_pause_cycle()
 	close_overlay()
+	audio.defeat=false; audio.final_defeat=false
 	audio.track(0)
 	screen="menu"; art.show_pair=true; art.menu_mode=true; art.preview=false; art.room=0; art.hero=Vector2(4.8,5); art.movement=Vector2.ZERO; art.path=[]
 	art.restored=[0,1,2,3]; art.active=-1; art.seated=false; art.bench_pending=false; art.restore_time=0; art.restore_index=-1; art.collapse_time=0
@@ -147,7 +165,7 @@ func menu() -> void:
 	button("Continuar",Rect2(65,542,370,51),profile_menu).disabled=profiles.is_empty()
 	button("Como jogar",Rect2(65,610,178,46),func(): info("Seu guia",help_text()))
 	button("Configurações",Rect2(255,610,180,46),open_settings)
-	button("A história do museu",Rect2(65,679,370,46),func(): info("O museu fora do tempo","Na véspera de uma nova exposição, quadros perderam suas cores e antigas invenções começaram a se desfazer. Com medo de perder o acervo, o Curador acionou o Relógio Central. O museu ficou preso no mesmo instante — e suas histórias também pararam de avançar.\n\nTico é um pequeno robô em forma de relógio, criado para cuidar dos mecanismos e orientar os visitantes. Ele aparece flutuando ao lado de você durante a exploração. A parada do tempo espalhou suas memórias por três engrenagens, mas uma lembrança resistiu: cada padrão guarda uma pista. Seu caderno reúne essas descobertas.\n\nVocê chega como aprendiz de restauração. Nas três alas, as progressões aritméticas ajudam a reconstruir 12 obras e recuperar as engrenagens. A cada restauração, uma parte do acervo e das lembranças de Tico volta à vida.\n\nSua missão é fazer o Relógio Central funcionar novamente e mostrar ao Curador que preservar o passado também significa deixar espaço para o amanhã."))
+	button("A história do museu",Rect2(65,679,370,46),func(): info("O museu fora do tempo","Na véspera de uma nova exposição, quadros perderam suas cores e antigas invenções começaram a se desfazer. Com medo de perder o acervo, o Curador acionou o Relógio Central. O museu ficou preso no mesmo instante. Suas histórias também pararam de avançar.\n\nTico é um pequeno robô em forma de relógio, criado para cuidar dos mecanismos e orientar os visitantes. Ele aparece flutuando ao lado de você durante a exploração. A parada do tempo espalhou suas memórias por três engrenagens, mas uma lembrança resistiu: cada padrão guarda uma pista. Seu caderno reúne essas descobertas.\n\nVocê chega como aprendiz de restauração. Nas três alas, as progressões aritméticas ajudam a reconstruir 12 obras e recuperar as engrenagens. A cada restauração, uma parte do acervo e das lembranças de Tico volta à vida.\n\nSua missão é fazer o Relógio Central funcionar novamente e mostrar ao Curador que preservar o passado também significa deixar espaço para o amanhã."))
 	label_at("12 RESTAURAÇÕES     •     DOIS MODOS     •     UMA AVENTURA",Rect2(65,749,700,25),13,MUTED)
 	label_at("UM LUGAR PARA REDESCOBRIR",Rect2(800,712,430,30),14,GOLD)
 
@@ -167,7 +185,7 @@ func new_game() -> void:
 	label_at("Mesmas habilidades. Duas aparências originais.",Rect2(79,449,575,30),17,MUTED)
 	setup_mode_buttons.append(button("Normal",Rect2(79,515,280,58),func(): select_setup_mode("normal")))
 	setup_mode_buttons.append(button("Difícil",Rect2(374,515,280,58),func(): select_setup_mode("hard")))
-	label_at("Normal: sem cronômetro, dicas graduais.\nDifícil: tempo por questão, uma dica.\nAmbos: colapso após dois erros.",Rect2(79,582,575,96),16,MUTED)
+	label_at("Normal: sem cronômetro, dicas graduais.\nDifícil: tempo por questão, uma dica.\nAmbos: duas vidas e uma tentativa extra por jornada.",Rect2(79,582,575,96),16,MUTED)
 	button("Voltar",Rect2(191,695,170,40),menu)
 	button("Iniciar",Rect2(379,695,170,40),start_new_journey)
 	panel(Rect2(760,100,450,610))
@@ -211,8 +229,8 @@ func validate_setup() -> bool:
 	var name_missing: bool=setup_attempted and "nome" in missing
 	setup_name.add_theme_stylebox_override("normal",style(Color("1d3849"),error if name_missing else Color("355264")))
 	setup_name.add_theme_stylebox_override("focus",style(Color("1d3849"),error if name_missing else Color("78909c")))
-	setup_hint.text="Informe um nome ou apelido válido; apenas espaços não são aceitos." if name_missing else "Até 20 caracteres visíveis. Acentos, símbolos e emojis são aceitos."
-	if mobile_layout: setup_hint.text="Digite um nome; apenas espaços não valem." if name_missing else "Até 20 caracteres. Acentos e emojis são aceitos."
+	setup_hint.text="Informe um nome ou apelido válido. Apenas espaços não são aceitos." if name_missing else "Até 20 caracteres visíveis. Acentos, símbolos e emojis são aceitos."
+	if mobile_layout: setup_hint.text="Digite um nome. Apenas espaços não valem." if name_missing else "Até 20 caracteres. Acentos e emojis são aceitos."
 	setup_hint.add_theme_color_override("font_color",error if name_missing else MUTED)
 	for group in [setup_character_buttons,setup_mode_buttons]:
 		var pending: bool=setup_attempted and ((group==setup_character_buttons and "personagem" in missing) or (group==setup_mode_buttons and "dificuldade" in missing))
@@ -250,7 +268,8 @@ func clean_name(value: String,fallback: bool=true) -> String:
 	return "Explorador" if out.is_empty() and fallback else out
 
 func create_profile(player_name: String,mode: String) -> void:
-	current={"id":str(Time.get_unix_time_from_system())+str(randi()%1000),"name":clean_name(player_name),"gender":gender,"mode":mode,"done":[],"seen":[],"active":{},"lives":2,"rules_version":4,"room":0,"hero":[4.5,5.8],"tutorial":true,"phase":"world","balance":[0,0,0,0],"attempts":0,"correct":0,"hints_used":0,"learning":{}}
+	learning_scroll_position=0
+	current={"id":str(Time.get_unix_time_from_system())+str(randi()%1000),"name":clean_name(player_name),"gender":gender,"mode":mode,"done":[],"seen":[],"active":{},"lives":2,"rules_version":4,"room":0,"hero":[4.5,5.8],"tutorial":true,"phase":"world","balance":[0,0,0,0],"attempts":0,"correct":0,"hints_used":0,"learning":{},"defeats":0,"last_defeat_timeout":false}
 	profiles.append(current)
 	art.gender=gender
 	mission=0; room=0
@@ -294,7 +313,7 @@ func tutorial_controls() -> void:
 	reset_refs(); panel(Rect2(150,85,980,630))
 	label_at("UM PEQUENO GUIA DE EXPLORAÇÃO",Rect2(190,120,900,40),16,TEAL)
 	label_at("Caminhe. Observe. Restaure.",Rect2(190,180,890,70),37,GOLD)
-	prose("CAMINHAR · Setas ou clique no chão.\nEXAMINAR · Clique numa obra ou pressione E perto dela.\nO marcador ! indica a próxima missão; ✓ indica obra restaurada.\n\nErrar custa uma vida. Ao zerar, tente novamente a missão atual.\nDicas e trocas não gastam vidas. No Difícil, trocar mantém o tempo restante.\n\nEsc ou Enter leva ao banco e pausa depois de sentar. Ao retomar, o personagem se levanta antes de liberar os controles. Os botões do menu continuam com som. No Difícil, abrir o caderno mantém o tempo ativo.\n\nSiga o marcador dourado para começar.",Rect2(190,270,880,335),21)
+	prose("CAMINHAR · Setas ou clique no chão.\nEXAMINAR · Clique numa obra ou pressione E perto dela.\nO marcador ! mostra a próxima missão. O símbolo ✓ marca uma obra restaurada.\n\nErrar custa uma vida. Se as vidas acabarem, você tem uma tentativa extra. Uma segunda derrota apaga essa jornada.\nDicas e trocas não gastam vidas. No Difícil, trocar mantém o tempo restante.\n\nEsc ou Enter leva ao banco e pausa depois de sentar. Ao retomar, o personagem se levanta antes de liberar os controles. Os botões do menu continuam com som. No Difícil, abrir o caderno mantém o tempo ativo.\n\nSiga o marcador dourado para começar.",Rect2(190,270,880,335),21)
 	button("Explorar a galeria",Rect2(190,631,350,52),func(): current.tutorial=true; current.phase="world"; phase="world"; save_game(); world(),true)
 
 func profile_menu() -> void:
@@ -323,6 +342,10 @@ func next_mission() -> int:
 	return 12
 
 func resume_profile() -> void:
+	if str(current.get("id","")) in ended_journeys:
+		current={}; profile_menu(); return
+	if int(current.get("defeats",0))>=2:
+		collapse(); return
 	gender=current.gender; art.gender=gender; room=int(current.room)
 	art.hero=Vector2(float(current.hero[0]),float(current.hero[1]))
 	mission=next_mission()
@@ -360,6 +383,7 @@ func resume_profile() -> void:
 	else: world(true)
 
 func world(keep_position: bool=false) -> void:
+	art.defeat_amount=0; art.defeat_active=false; art.modulate=Color.WHITE
 	cancel_pause_cycle()
 	close_overlay(); screen="world"; phase="world"; answered=false; question={}
 	mission=next_mission()
@@ -487,6 +511,8 @@ func start_question() -> void:
 	save_game(); challenge()
 
 func challenge() -> void:
+	question_ready=false
+	art.defeat_active=false; art.defeat_amount=0
 	screen="challenge"; phase="question"; room=int(mission/4)
 	audio.track(room+1)
 	art.show_pair=false; art.menu_mode=false; art.preview=false; art.room=room; art.movement=Vector2.ZERO; art.path=[]
@@ -512,6 +538,10 @@ func challenge() -> void:
 	button("Confirmar restauração",Rect2(790,695,390,56),submit,true)
 	button("Próxima pergunta",Rect2(470,695,295,56),skip_question).tooltip_text="Sem perder vidas. No Difícil, o tempo restante é mantido."
 	update_timer(); save_game()
+	call_deferred("mark_question_ready")
+
+func mark_question_ready() -> void:
+	if screen=="challenge" and not answered: question_ready=true
 
 func skip_question() -> void:
 	if screen!="challenge" or paused or answered: return
@@ -556,7 +586,7 @@ func submit() -> void:
 	response=normalized(value)
 	correct=response==normalized(question.answer)
 	if response in bad_answers:
-		status.text="Você já testou essa resposta. Altere o plano; nenhuma vida adicional foi perdida."; return
+		status.text="Você já testou essa resposta. Altere a resposta. Nenhuma outra vida foi perdida."; return
 	current.attempts=int(current.attempts)+1
 	if correct:
 		answered=true; current.correct=int(current.correct)+1
@@ -572,7 +602,10 @@ func lose_charge(timeout: bool) -> void:
 	audio.cue("wrong"); update_lives()
 	if timeout: answered=true; phase="timeout"; record_learning("tempo_esgotado")
 	if int(current.lives)<=0:
-		answered=true; phase="collapse"; update_snapshot(); save_game(); collapse()
+		answered=true; phase="collapse"
+		current.defeats=mini(2,int(current.get("defeats",0))+1)
+		current.last_defeat_timeout=timeout
+		update_snapshot(); save_game(); collapse()
 	elif timeout:
 		update_snapshot(); save_game(); timeout_screen()
 	else:
@@ -588,22 +621,108 @@ func timeout_screen() -> void:
 	button("Menu",Rect2(540,600,190,55),func(): save_game(); menu())
 
 func collapse() -> void:
-	screen="collapse"; phase="collapse"; answered=true
-	art.collapse_time=1.6 if pause_stage.is_empty() else 0.0; art.movement=Vector2.ZERO
-	if pause_stage.is_empty(): art.path=[]
-	audio.cue("collapse")
+	if current.is_empty(): return
+	cancel_pause_cycle(); super.close_overlay()
+	gameover_final=int(current.get("defeats",0))>=2
+	if not gameover_final: current.defeats=1
+	var player_name: String=str(current.name)
+	var reason: String="O tempo acabou e suas vidas se esgotaram." if current.get("last_defeat_timeout",false) else "Suas duas vidas se esgotaram."
+	room=int(mission/4)
+	art.room=room; art.gender=current.gender; art.restored=current.done.duplicate()
+	art.show_pair=false; art.menu_mode=false; art.preview=false; art.active=-1
+	art.path=[]; art.pending=-1; art.bench_pending=false; art.movement=Vector2.ZERO; art.moving=false
+	art.restore_time=0; art.collapse_time=0; art.defeat_active=true; art.defeat_amount=0
+	art.presentation_rect=Rect2(15,70,735,650)
+	screen="gameover_final" if gameover_final else "collapse"
+	phase="collapse"; answered=true; question_ready=false; touch_movement=Vector2.ZERO
+	gameover_elapsed=0; gameover_returning=false; gameover_storage_ok=true
+	audio.paused=false; audio.subdued=true; audio.defeat=true; audio.final_defeat=gameover_final
+	audio.cue("gameover_final" if gameover_final else "gameover_first")
+	if gameover_final: gameover_storage_ok=retire_current_journey()
+	else: update_snapshot(); save_game()
 	reset_refs()
-	panel(Rect2(160,120,960,570))
-	label_at("COLAPSO TEMPORAL",Rect2(200,156,870,60),36,Color("eab5b0"))
-	label_at("O tempo nos pegou, %s."%current.name,Rect2(200,237,870,70),27,GOLD)
-	label_at("As obras já restauradas continuam seguras.\n\n"+solution_text(),Rect2(200,330,850,210),23)
-	button("Tentar novamente",Rect2(200,601,300,53),func(): current.lives=max_lives(); current.active={}; answered=false; start_question(),true)
-	button("Revisar conteúdo",Rect2(520,601,270,53),notebook)
-	button("Menu",Rect2(810,601,200,53),func(): save_game(); menu())
-	if not testing and not settings.reduced:
-		ui.modulate.a=0
-		var tween:=create_tween(); tween.tween_interval(.8); tween.tween_property(ui,"modulate:a",1.0,.5)
-	update_snapshot(); save_game()
+	gameover_shade=ColorRect.new(); gameover_shade.color=Color(.035,.045,.075,.25)
+	place(gameover_shade,Rect2(0,0,1280,800))
+	label_at("ALA %02d  /  %s" % [room+1,ROOMS[room]],Rect2(42,38,680,40),18,GOLD)
+	gameover_card=Control.new(); place(gameover_card,Rect2(735,80,510,650))
+	panel(Rect2(0,0,510,650),gameover_card)
+	var eyebrow:=label_at("FIM DA JORNADA" if gameover_final else "UMA NOVA CHANCE",Rect2(32,26,446,30),15,TEAL,gameover_card)
+	eyebrow.set_meta("gameover_role","eyebrow")
+	var heading:=label_at("GAME OVER",Rect2(32,74,446,70),48,Color("edb8ad"),gameover_card)
+	heading.set_meta("gameover_role","heading")
+	var detail:=label_at(reason,Rect2(32,153,446,65),22,GOLD,gameover_card)
+	detail.set_meta("gameover_role","reason")
+	var message: String="Tico: até a próxima jornada, %s." % player_name if gameover_final else "Tico: estou com você, %s. Vamos tentar?" % player_name
+	var body:=label_at(message,Rect2(32,233,446,110),21,WHITE,gameover_card)
+	body.horizontal_alignment=HORIZONTAL_ALIGNMENT_FILL
+	body.justification_flags=TextServer.JUSTIFICATION_WORD_BOUND | TextServer.JUSTIFICATION_SKIP_LAST_LINE
+	body.set_meta("gameover_role","body")
+	var body_scroll:=ScrollContainer.new(); body_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	place(body_scroll,Rect2(32,233,446,110),gameover_card); body_scroll.set_meta("gameover_role","body")
+	padded_scroll_content(body_scroll,body)
+	var warning: String="Todo o progresso desta jornada foi apagado." if gameover_final else "Última chance. Uma nova derrota apaga todo o progresso desta jornada."
+	if gameover_final and not gameover_storage_ok: warning="Não conseguimos concluir o salvamento. Tente voltar ao início pelo botão abaixo."
+	var note:=label_at(warning,Rect2(32,354,446,94),18,Color("e8b5a8"),gameover_card)
+	note.horizontal_alignment=HORIZONTAL_ALIGNMENT_FILL
+	note.justification_flags=TextServer.JUSTIFICATION_WORD_BOUND | TextServer.JUSTIFICATION_SKIP_LAST_LINE
+	note.set_meta("gameover_role","warning")
+	var note_scroll:=ScrollContainer.new(); note_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	place(note_scroll,Rect2(32,354,446,94),gameover_card); note_scroll.set_meta("gameover_role","warning")
+	padded_scroll_content(note_scroll,note)
+	if gameover_final:
+		var returning:=label_at("Voltando à tela inicial…" if gameover_storage_ok else "Seu jogo continua aberto para tentar salvar.",Rect2(32,510,446,65),20,MUTED,gameover_card)
+		returning.set_meta("gameover_role","returning")
+		if not gameover_storage_ok: gameover_primary=button("Tentar voltar ao início",Rect2(32,574,446,52),retry_final_save,true,gameover_card)
+	else:
+		gameover_primary=button("Tentar novamente",Rect2(32,458,446,52),retry_gameover,true,gameover_card)
+		button("Consultar o Caderno de Tico",Rect2(32,520,446,52),notebook,false,gameover_card)
+		button("Voltar ao menu",Rect2(32,582,446,44),leave_gameover,false,gameover_card)
+	if not settings.reduced and not testing: gameover_card.modulate.a=0
+
+func retry_gameover() -> void:
+	if screen!="collapse" or gameover_final or current.is_empty(): return
+	if not testing and gameover_elapsed<1: return
+	close_overlay()
+	current.lives=max_lives(); current.active={}; current.phase="question"
+	audio.defeat=false; audio.final_defeat=false
+	art.modulate=Color.WHITE; art.defeat_active=false; art.defeat_amount=0; art.presentation_rect=Rect2()
+	answered=false; save_game(); start_question()
+
+func leave_gameover() -> void:
+	if screen!="collapse": return
+	update_snapshot(); save_game(); menu()
+
+func retire_current_journey() -> bool:
+	if current.is_empty(): return true
+	var id: String=str(current.id)
+	var retired: Array=ended_journeys.duplicate()
+	if id not in retired: retired.append(id)
+	var temp: String=ENDED_SAVE+".tmp"
+	var file:=FileAccess.open(temp,FileAccess.WRITE)
+	if file==null: storage_failure(); return false
+	file.store_string(JSON.stringify(retired)); file.flush()
+	var result: Error=file.get_error(); file.close()
+	if result!=OK or DirAccess.rename_absolute(ProjectSettings.globalize_path(temp),ProjectSettings.globalize_path(ENDED_SAVE))!=OK:
+		storage_failure(); return false
+	ended_journeys=retired
+	profiles=profiles.filter(func(p): return str(p.id)!=id)
+	current={}; question={}; phase=""; save_game(); save_game()
+	return true
+
+func retry_final_save() -> void:
+	if not gameover_final: return
+	if retire_current_journey(): menu()
+
+func process_gameover(delta: float) -> void:
+	if screen not in ["collapse","gameover_final"]: return
+	gameover_elapsed+=delta
+	var amount: float=1.0 if settings.reduced else clampf(gameover_elapsed/1.0,0,1)
+	art.defeat_amount=amount
+	art.modulate=Color.WHITE.lerp(Color(.72,.78,.88,1),amount)
+	if is_instance_valid(gameover_card): gameover_card.modulate.a=amount
+	if gameover_elapsed>=1 and is_instance_valid(gameover_primary) and not gameover_returning:
+		gameover_primary.grab_focus(); gameover_returning=true
+	if screen=="gameover_final" and gameover_storage_ok and gameover_elapsed>=4.6: menu()
 
 func max_lives() -> int:
 	return 2
@@ -680,15 +799,15 @@ func show_hint() -> void:
 func notebook() -> void:
 	if screen=="challenge": consulted_book=true; update_snapshot(); save_game()
 	var running: bool=screen=="challenge" and current.get("mode","")=="hard" and not answered
-	info("Caderno de Tico"+(" · TEMPO CONTINUA" if running else ""),"P.A. é uma sequência com diferença constante entre termos consecutivos.\n\nSÍMBOLOS\na₁: primeiro termo · a₂: segundo termo\naₙ: termo na posição n · r: razão (diferença constante)\nn: posição do termo ou quantidade de termos somados\nSₙ: soma dos n primeiros termos\ni e j: posições distintas; a[i] e a[j]: termos nessas posições\n\nRAZÃO — diferença entre termos consecutivos\nr = a₂ − a₁\nEx.: 2, 5, 8 r = 5 − 2 = 3\n\nRAZÃO ENTRE DUAS POSIÇÕES — quando os termos não são vizinhos\nr = (a[j] − a[i])/(j − i), com j ≠ i\nEx.: a₂ = 5 e a₄ = 11 r = (11 − 5)/(4 − 2) = 3\n\nTERMO GERAL — encontrar o valor na posição n\naₙ = a₁ + (n − 1)r\nEx.: a₁ = 2, r = 3 a₄ = 2 + 3 × 3 = 11\n\nPRIMEIRO TERMO — voltar ao início\na₁ = aₙ − (n − 1)r\nEx.: a₄ = 11, r = 3 a₁ = 11 − 3 × 3 = 2\n\nPOSIÇÃO OU QUANTIDADE — localizar o último termo\nn = (aₙ − a₁)/r + 1, se r ≠ 0\nEx.: (11 − 2)/3 + 1 = 4 termos\n\nSOMA — juntar os n primeiros termos\nSₙ = n(a₁ + aₙ)/2\nEx.: S₄ = 4 × (2 + 11)/2 = 26\n\nr > 0: crescente. r < 0: decrescente. r = 0: constante.\n\nExemplo: 2, 5, 8, 11. r = 3, a₄ = 11 e S₄ = 26.\nA primeira posição é 1. A quantidade de termos é inteira e positiva.\n\nNo modo Difícil, o cronômetro continua enquanto você consulta este caderno.",Callable(),"",not running)
+	info("Caderno de Tico"+(" · TEMPO CONTINUA" if running else ""),"P.A. é uma sequência com diferença constante entre termos consecutivos.\n\nSÍMBOLOS\na₁: primeiro termo · a₂: segundo termo\naₙ: termo na posição n · r: razão (diferença constante)\nn: posição do termo ou quantidade de termos somados\nSₙ: soma dos n primeiros termos\ni e j: posições distintas. Os termos nessas posições são a[i] e a[j]\n\nRAZÃO: diferença entre termos consecutivos\nr = a₂ − a₁\nEx.: 2, 5, 8 r = 5 − 2 = 3\n\nRAZÃO ENTRE DUAS POSIÇÕES: quando os termos não são vizinhos\nr = (a[j] − a[i])/(j − i), com j ≠ i\nEx.: a₂ = 5 e a₄ = 11 r = (11 − 5)/(4 − 2) = 3\n\nTERMO GERAL: encontrar o valor na posição n\naₙ = a₁ + (n − 1)r\nEx.: a₁ = 2, r = 3 a₄ = 2 + 3 × 3 = 11\n\nPRIMEIRO TERMO: voltar ao início\na₁ = aₙ − (n − 1)r\nEx.: a₄ = 11, r = 3 a₁ = 11 − 3 × 3 = 2\n\nPOSIÇÃO OU QUANTIDADE: localizar o último termo\nn = (aₙ − a₁)/r + 1, se r ≠ 0\nEx.: (11 − 2)/3 + 1 = 4 termos\n\nSOMA: juntar os n primeiros termos\nSₙ = n(a₁ + aₙ)/2\nEx.: S₄ = 4 × (2 + 11)/2 = 26\n\nr > 0: crescente. r < 0: decrescente. r = 0: constante.\n\nExemplo: 2, 5, 8, 11. r = 3, a₄ = 11 e S₄ = 26.\nA primeira posição é 1. A quantidade de termos é inteira e positiva.\n\nNo modo Difícil, o cronômetro continua enquanto você consulta este caderno.",Callable(),"",not running)
 
 func pause_game() -> void:
 	if screen=="credits": toggle_credits_pause(); return
-	if screen not in ["world","challenge","restoring","credits","ending","success","timeout","collapse"]: return
+	if screen not in ["world","challenge","restoring","credits","ending","success","timeout"]: return
 	if not pause_stage.is_empty(): return
 	if banked_pause: show_pause_menu(); return
 	super.close_overlay()
-	pause_layout={"menu":art.menu_mode,"pair":art.show_pair}
+	pause_layout={"menu":art.menu_mode,"pair":art.show_pair,"frame":art.presentation_rect}
 	ui.visible=false; art.menu_mode=false; art.show_pair=false; art.room=room
 	art.movement=Vector2.ZERO; touch_movement=Vector2.ZERO
 	art.frozen=false; pause_stage="walking"
@@ -702,18 +821,20 @@ func pause_game() -> void:
 func show_pause_menu() -> void:
 	pause_stage=""; banked_pause=true; overlay_kind="pause"
 	ui.visible=false; art.seated=true; art.rise_progress=0
-	make_overlay(); audio.paused=true; art.frozen=true
+	make_overlay(); overlay.get_child(0).color=Color(.025,.045,.075,.40)
+	art.presentation_rect=Rect2(10,100,665,570)
+	audio.paused=true; art.frozen=true
 	art.movement=Vector2.ZERO; touch_movement=Vector2.ZERO
 	update_snapshot(); save_game()
-	panel(Rect2(335,72,610,657),overlay)
-	label_at("O tempo pode esperar.",Rect2(375,111,530,65),32,GOLD,overlay)
-	button("Retomar",Rect2(375,211,530,54),resume_from_bench,true,overlay).grab_focus()
-	button("Configurações",Rect2(375,279,530,51),func(): returning_to_pause=true; open_settings(),false,overlay)
-	button("Controles",Rect2(375,344,530,51),func(): info("Como jogar",help_text()),false,overlay)
-	button("Trocar pergunta",Rect2(375,409,530,51),restart_confirm,false,overlay).disabled=screen!="challenge"
-	button("Voltar ao menu",Rect2(375,474,530,51),func():
+	panel(Rect2(695,72,550,657),overlay)
+	label_at("O tempo pode esperar.",Rect2(727,111,486,65),30,GOLD,overlay)
+	button("Retomar",Rect2(727,211,486,54),resume_from_bench,true,overlay).grab_focus()
+	button("Configurações",Rect2(727,279,486,51),func(): returning_to_pause=true; open_settings(),false,overlay)
+	button("Controles",Rect2(727,344,486,51),func(): info("Como jogar",help_text()),false,overlay)
+	button("Trocar pergunta",Rect2(727,409,486,51),restart_confirm,false,overlay).disabled=screen!="challenge"
+	button("Voltar ao menu",Rect2(727,474,486,51),func():
 		info("Voltar ao menu?","Sua questão, alternativas, vidas e tempo restante serão preservados.",func(): update_snapshot(); save_game(); menu(),"Salvar e voltar"),false,overlay)
-	label_at("Questão encoberta. Cronômetro e museu pausados.\nProgresso salvo neste dispositivo.",Rect2(375,586,530,82),18,MUTED,overlay)
+	label_at("Questão encoberta. Cronômetro e museu pausados.\nSua jornada está salva neste dispositivo.",Rect2(727,586,486,100),18,MUTED,overlay).horizontal_alignment=HORIZONTAL_ALIGNMENT_LEFT
 
 
 func resume_from_bench() -> void:
@@ -727,6 +848,7 @@ func resume_from_bench() -> void:
 func restore_pause_layout() -> void:
 	art.menu_mode=bool(pause_layout.get("menu",false))
 	art.show_pair=bool(pause_layout.get("pair",false))
+	art.presentation_rect=pause_layout.get("frame",Rect2())
 	pause_layout={}
 
 func cancel_pause_cycle() -> void:
@@ -736,6 +858,8 @@ func cancel_pause_cycle() -> void:
 	if is_instance_valid(art): art.rise_progress=0
 
 func close_overlay() -> void:
+	if learning_book:
+		learning_book=false; learning_summary(); return
 	if banked_pause:
 		if overlay_kind=="pause": resume_from_bench()
 		else: super.close_overlay(); show_pause_menu()
@@ -773,7 +897,7 @@ func open_settings() -> void:
 	button("Salvar e voltar",Rect2(275,635,320,50),settings_back,true,overlay)
 
 func help_text() -> String:
-	return "OBJETIVO\nRestaure 12 exposições em três alas. Cada engrenagem recuperada abre a próxima ala.\n\nCONTROLES\nEXPLORAÇÃO: use as setas, os botões direcionais ou clique no chão para caminhar. Clique numa obra para aproximar-se; use Examinar ou E para abrir.\n\nBANCO: você começa sentado em cada galeria, inclusive na primeira. Levantar ou uma seta permite explorar. Clicar no banco ou em Sentar faz o personagem caminhar e sentar, sem pausar.\n\nPAUSA: Pausar, Esc ou Enter levam o personagem até o banco. O jogo e o som do cenário pausam somente depois que ele se senta. Ao retomar, ele se levanta; em seguida os controles são liberados. No Difícil, o tempo continua durante a caminhada até o banco.\n\nMENUS: use as setas para navegar, Espaço para ativar a opção destacada e Tab para alternar o foco. Em textos longos, cima/baixo rolam o conteúdo; Page Up/Page Down, Home e End também funcionam. Esc ou Enter retomam o jogo quando ele está pausado.\n\nCELULAR\nJogue na horizontal. Toque nas opções e nas obras, use os botões direcionais para caminhar e arraste os textos para rolar. O nome é digitado pelo teclado do navegador. Nos créditos pausados, Retomar letras permite continuar pelo toque.\n\nCRÉDITOS FINAIS\nPausar interrompe somente as letras. A música e as galerias continuam, respeitando Movimento reduzido. Esc ou Enter pausam e retomam os letreiros. Enquanto as letras estão pausadas, o botão Sair para o menu principal encerra os créditos. Não há caminhada ao banco nem menu de pausa nos créditos.\n\nDESAFIOS\nIdentifique padrões e calcule termos, razões e somas. Escolha uma alternativa e confirme. O sorteio respeita o conteúdo da obra. Próxima pergunta não gasta vidas; no Difícil, mantém o tempo restante.\n\nESTABILIDADE\nDois erros causam colapso. Normal: sem tempo. Difícil: 60–120 segundos; tempo esgotado também custa uma vida. Cada erro novo e confirmado custa uma vida. Campos vazios e respostas repetidas não descontam novamente. Ao zerar, reinicie só a missão atual. Acertar recupera as vidas.\n\nDICAS\nDicas não custam vidas. O caderno mantém o tempo ativo no Difícil. A pausa encobre a questão durante a ida ao banco; o tempo só para depois de sentar."
+	return "OBJETIVO\nRestaure 12 exposições em três alas. Cada engrenagem recuperada abre a próxima ala.\n\nCONTROLES\nEXPLORAÇÃO: use as setas, os botões direcionais ou clique no chão para caminhar. Clique numa obra para aproximar-se. Use Examinar ou E para abrir.\n\nBANCO: você começa sentado em cada galeria, inclusive na primeira. Levantar ou uma seta permite explorar. Clicar no banco ou em Sentar faz o personagem caminhar e sentar, sem pausar.\n\nPAUSA: Pausar, Esc ou Enter levam o personagem até o banco. O jogo e o som do cenário pausam somente depois que ele se senta. Ao retomar, ele se levanta. Em seguida os controles são liberados. No Difícil, o tempo continua durante a caminhada até o banco.\n\nMENUS: use as setas para navegar, Espaço para ativar a opção destacada e Tab para alternar o foco. Em textos longos, cima/baixo rolam o conteúdo. Page Up/Page Down, Home e End também funcionam. Esc ou Enter retomam o jogo quando ele está pausado.\n\nCELULAR\nJogue na horizontal. Toque nas opções e nas obras, use os botões direcionais para caminhar e arraste os textos para rolar. O nome é digitado pelo teclado do navegador. Nos créditos pausados, Retornar aos créditos permite continuar pelo toque.\n\nCRÉDITOS FINAIS\nPausar interrompe somente as letras. A música e as galerias continuam, respeitando Movimento reduzido. Esc ou Enter pausam e retomam os letreiros. Enquanto as letras estão pausadas, o botão Sair para o menu principal encerra os créditos. Não há caminhada ao banco nem menu de pausa nos créditos.\n\nDESAFIOS\nIdentifique padrões e calcule termos, razões e somas. Escolha uma alternativa e confirme. O sorteio respeita o conteúdo da obra. Próxima pergunta não gasta vidas. No Difícil, mantém o tempo restante.\n\nESTABILIDADE\nQuando as duas vidas acabam, aparece GAME OVER. Normal: sem tempo. Difícil: 60 a 120 segundos. Quando o tempo acaba, você também perde uma vida. Cada erro novo e confirmado custa uma vida. Campos vazios e respostas repetidas não descontam novamente. Se as vidas acabarem, aparece GAME OVER. Você tem uma tentativa extra por jornada. Ela reinicia só a restauração atual, com duas vidas e uma nova questão. No Difícil, o tempo também é renovado. Se perder as duas vidas novamente, esta jornada e todas as suas restaurações serão apagadas. As outras jornadas e as configurações são preservadas. Voltar ao menu ou fechar o jogo não renova a tentativa extra. Acertar recupera as vidas, mas não apaga uma derrota anterior.\n\nDICAS\nDicas não custam vidas. O caderno mantém o tempo ativo no Difícil. A pausa encobre a questão durante a ida ao banco. O tempo só para depois de sentar."
 
 func credits() -> void:
 	audio.track(5)
@@ -866,6 +990,7 @@ func update_timer() -> void:
 	timer_label.add_theme_color_override("font_color",Color("efb3a4") if time_left<15 and current.mode=="hard" else GOLD)
 
 func _process(delta: float) -> void:
+	process_gameover(delta)
 	if mobile_layout and OS.has_feature("web"):
 		mobile_orientation_timer+=delta
 		if mobile_orientation_timer>=.3:
@@ -893,7 +1018,7 @@ func _process(delta: float) -> void:
 		if credit_roll.position.y+credits_text_height()<0: menu(); return
 	if not is_instance_valid(art): return
 	if is_instance_valid(title_label): title_label.reduced=settings.reduced; title_label.frozen=paused
-	art.frozen=(paused or screen in ["challenge","timeout","success"]) and pause_stage.is_empty()
+	art.frozen=(paused or screen in ["challenge","timeout","success"] or (screen in ["collapse","gameover_final"] and gameover_elapsed>=1)) and pause_stage.is_empty()
 	art.reduced=settings.reduced
 	if is_instance_valid(character_view): character_view.gender=gender; character_view.reduced=settings.reduced
 	audio.volume=float(settings.music)*float(settings.master)
@@ -923,7 +1048,7 @@ func _process(delta: float) -> void:
 		var person: int=art.menu_character_at(art.pointer)
 		if person>=0 and person!=menu_character_hovered: art.greetings[person]=1.2; audio.hover()
 		menu_character_hovered=person
-	if screen=="challenge" and not paused and not answered and current.mode=="hard":
+	if screen=="challenge" and not paused and not answered and question_ready and current.mode=="hard":
 		time_left=maxf(0,time_left-delta); update_timer()
 		if time_left<15: audio.warn()
 		if time_left<=0:
@@ -968,8 +1093,18 @@ func _input(event: InputEvent) -> void:
 	if not pause_stage.is_empty():
 		if event is InputEventKey or event is InputEventMouseButton: get_viewport().set_input_as_handled()
 		return
+	if screen=="gameover_final" and gameover_storage_ok:
+		if event is InputEventKey or event is InputEventMouseButton: get_viewport().set_input_as_handled()
+		return
 	if not event is InputEventKey: return
-	if event.keycode in [KEY_ENTER,KEY_KP_ENTER,KEY_ESCAPE] and screen in ["world","challenge","restoring","credits","ending","success","timeout","collapse"]:
+	if screen=="collapse" and event.pressed and not event.echo and event.keycode in [KEY_ENTER,KEY_KP_ENTER,KEY_SPACE,KEY_ESCAPE]:
+		if gameover_elapsed<1:
+			gameover_elapsed=1; get_viewport().set_input_as_handled(); return
+		if event.keycode==KEY_ESCAPE:
+			if is_instance_valid(overlay): close_overlay()
+			else: leave_gameover()
+			get_viewport().set_input_as_handled(); return
+	if event.keycode in [KEY_ENTER,KEY_KP_ENTER,KEY_ESCAPE] and screen in ["world","challenge","restoring","credits","ending","success","timeout"]:
 		get_viewport().set_input_as_handled()
 		if event.pressed and not event.echo: toggle_pause_key()
 		return
@@ -995,7 +1130,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			elif art.hit_bench(event.position): art.greetings[0]=1.3; art.greetings[1]=1.3; audio.hover()
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode==KEY_F11: toggle_fullscreen()
-		elif event.keycode==KEY_ESCAPE:
+		elif event.keycode==KEY_ESCAPE and screen!="gameover_final":
 			if is_instance_valid(overlay): close_overlay()
 			else: pause_game()
 		elif event.keycode==KEY_E and screen=="world" and not paused: interact_nearest()
@@ -1053,6 +1188,8 @@ func valid_profile(p: Variant) -> bool:
 	if not p.get("tour",false) is bool: return false
 	if not p.get("seated",false) is bool: return false
 	if not number_in(p.get("rules_version",0),0,4): return false
+	if not number_in(p.get("defeats",0),0,2): return false
+	if not p.get("last_defeat_timeout",false) is bool: return false
 	var balance: Variant=p.get("balance",[0,0,0,0])
 	if not balance is Array or balance.size()!=4: return false
 	for count in balance:
@@ -1132,6 +1269,8 @@ func normalize_profile(p: Dictionary) -> Dictionary:
 	clean.balance=p.get("balance",[0,0,0,0]).map(func(n): return int(n))
 	for key in ["attempts","correct","hints_used","skipped"]: clean[key]=int(p.get(key,0))
 	clean.learning=p.get("learning",{}).duplicate(true)
+	clean.defeats=maxi(int(p.get("defeats",0)),1 if clean.lives<=0 else 0)
+	clean.last_defeat_timeout=bool(p.get("last_defeat_timeout",false))
 	return clean
 
 func storage_failure() -> void:
@@ -1157,6 +1296,11 @@ func save_game() -> void:
 	if is_instance_valid(save_notice): save_notice.queue_free(); save_notice=null
 
 func load_save() -> void:
+	var ended: Variant=read_json(ENDED_SAVE)
+	ended_journeys=[]
+	if ended is Array:
+		for id in ended:
+			if id is String and id not in ended_journeys: ended_journeys.append(id)
 	var primary: Variant=read_json(SAVE)
 	var backup: Variant=read_json(SAVE+".bak")
 	var parsed: Variant=primary
@@ -1177,11 +1321,13 @@ func load_save() -> void:
 			parsed={"profiles":recovered,"settings":{}}
 			startup_warning="Os perfis válidos foram recuperados. Dados danificados foram descartados."
 	profiles=[]
-	for profile in parsed.profiles: profiles.append(normalize_profile(profile))
+	for profile in parsed.profiles:
+		if str(profile.id) not in ended_journeys: profiles.append(normalize_profile(profile))
 	for key in settings:
 		if parsed.get("settings",{}).has(key): settings[key]=parsed.settings[key]
 
 func smoke_test() -> void:
+	set_process(false)
 	var saved_profiles: Array=profiles.duplicate(true)
 	var saved_settings: Dictionary=settings.duplicate(true)
 	assert(db.size()==1050)
@@ -1222,6 +1368,7 @@ func smoke_test() -> void:
 	assert(question.id==qid and question.options==order)
 	assert(time_left==42.5 and int(current.lives)==2)
 	assert(sequence_slots[0]=="17")
+	await get_tree().process_frame
 	art.seated=true; pause_game(); _process(5); assert(time_left==42.5)
 	close_overlay(); _process(.4); notebook(); var running_time: float=time_left; _process(1); assert(absf(time_left-(running_time-1))<.001)
 	close_overlay(); lose_charge(true); assert(screen=="timeout" and int(current.lives)==1)
@@ -1289,7 +1436,7 @@ func smoke_test() -> void:
 	start_question(); assert(is_instance_valid(overlay)); close_overlay()
 	profiles=saved_profiles; settings=saved_settings; screen="menu"; current={}; save_game()
 	audio.stop_all()
-	print("PASS V2: 48 missions; 2 genders; 2 modes; empty/wrong/duplicate/correct; hints; balanced shuffle; persisted order/slots/time/lives; pause; notebook; timeout; collapse; 4 navigation routes; bank exhaustion; Unicode.")
+	print("PASS V2: 48 missions. 2 genders. 2 modes. empty/wrong/duplicate/correct. hints. balanced shuffle. persisted order/slots/time/lives. pause. notebook. timeout. collapse. 4 navigation routes. bank exhaustion. Unicode.")
 	await get_tree().process_frame
 	await get_tree().process_frame
 	get_tree().quit()
@@ -1379,13 +1526,74 @@ func record_learning(metric: String) -> void:
 	learning[key]=entry; current.learning=learning
 
 func learning_summary() -> void:
-	var titles: Array=["Reconhecer e classificar","Completar sequências","Razão","Termo geral","Primeiro termo","Posição e quantidade","Soma"]
-	var body: String="Usar ajuda faz parte de aprender.\n\n"
+	if current.is_empty(): return
+	learning_book=false; overlay_kind="learning"
+	make_overlay()
+	overlay.set_meta("learning_dashboard",true)
+	var frame: Rect2=Rect2(20,12,920,516) if mobile_layout else Rect2(130,45,1020,710)
+	var inset: float=24 if mobile_layout else 40
+	panel(frame,overlay)
+	label_at("Meu aprendizado",Rect2(frame.position+Vector2(inset,18),Vector2(frame.size.x-inset*2,48)),30,GOLD,overlay)
+	label_at("Cada tentativa ajuda a entender os padrões.",Rect2(frame.position+Vector2(inset,70),Vector2(frame.size.x-inset*2,38)),18,MUTED,overlay)
+	learning_scroll=ScrollContainer.new()
+	learning_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+	place(learning_scroll,Rect2(frame.position+Vector2(inset,116),Vector2(frame.size.x-inset*2,frame.size.y-212)),overlay)
+	var content:=VBoxContainer.new(); content.add_theme_constant_override("separation",20)
+	padded_scroll_content(learning_scroll,content)
 	var learning: Dictionary=current.get("learning",{})
+	var correct_count: int=0
+	for row in learning.values(): correct_count+=int(row.get("sem_ajuda",0))+int(row.get("com_ajuda",0))
+	var summary:=GridContainer.new(); summary.columns=3; summary.add_theme_constant_override("h_separation",16); content.add_child(summary)
+	for i in range(3):
+		var tile:=PanelContainer.new(); tile.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		tile.add_theme_stylebox_override("panel",style(Color("17323f"))); summary.add_child(tile)
+		var stack:=VBoxContainer.new(); tile.add_child(stack)
+		var value:=Label.new(); value.text=str([current.done.size(),correct_count,int(current.hints_used)][i])
+		value.add_theme_font_size_override("font_size",30); value.add_theme_color_override("font_color",TEAL); stack.add_child(value)
+		var caption:=Label.new(); caption.text=["Obras restauradas","Respostas corretas","Dicas consultadas"][i]
+		caption.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART; caption.add_theme_font_size_override("font_size",16); stack.add_child(caption)
+	var titles: Array=["Reconhecer e classificar","Completar sequências","Razão","Termo geral","Primeiro termo","Posição e quantidade","Soma"]
+	var best: int=-1; var best_count: int=0; var review: int=-1; var review_count: int=0
 	for i in range(7):
 		var row: Dictionary=learning.get(str(i),{})
-		body+="%s\nAcertos: %d sem ajuda · %d com ajuda\nErros: %d · Puladas: %d · Tempo esgotado: %d\n\n" % [titles[i],int(row.get("sem_ajuda",0)),int(row.get("com_ajuda",0)),int(row.get("erros",0)),int(row.get("puladas",0)),int(row.get("tempo_esgotado",0))]
-	info("Meu aprendizado",body)
+		var hits: int=int(row.get("sem_ajuda",0))+int(row.get("com_ajuda",0))
+		var misses: int=int(row.get("erros",0))+int(row.get("tempo_esgotado",0))
+		if hits>best_count: best=i; best_count=hits
+		if misses>review_count: review=i; review_count=misses
+	var note: String="Os resultados aparecerão aqui conforme você resolver os desafios. Usar ajuda também faz parte de aprender."
+	if best>=0: note="Você teve mais acertos em %s." % str(titles[best]).to_lower()
+	if review>=0: note+=" Vale revisar %s no Caderno de Tico." % str(titles[review]).to_lower()
+	var insight:=Label.new(); insight.text=note; insight.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+	insight.horizontal_alignment=HORIZONTAL_ALIGNMENT_FILL
+	insight.justification_flags=TextServer.JUSTIFICATION_WORD_BOUND | TextServer.JUSTIFICATION_SKIP_LAST_LINE
+	insight.add_theme_font_size_override("font_size",19); content.add_child(insight)
+	var grid:=GridContainer.new(); grid.columns=1 if mobile_layout else 2
+	grid.add_theme_constant_override("h_separation",18); grid.add_theme_constant_override("v_separation",18); content.add_child(grid)
+	for i in range(7):
+		var card:=PanelContainer.new(); card.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		card.custom_minimum_size=Vector2(0,252); card.add_theme_stylebox_override("panel",style(Color("142c39"))); grid.add_child(card)
+		var stack:=VBoxContainer.new(); stack.add_theme_constant_override("separation",12); card.add_child(stack)
+		var heading:=Label.new(); heading.text=str(titles[i]); heading.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+		heading.add_theme_font_size_override("font_size",22+(2 if settings.large else 0)); heading.add_theme_color_override("font_color",GOLD); stack.add_child(heading)
+		var row: Dictionary=learning.get(str(i),{})
+		var metrics: Array=["sem_ajuda","com_ajuda","erros","puladas","tempo_esgotado"]
+		var captions: Array=["Acertos sem ajuda","Acertos com ajuda","Erros","Questões puladas","Tempo esgotado"]
+		for j in range(metrics.size()):
+			var metric:=HBoxContainer.new(); stack.add_child(metric)
+			var caption:=Label.new(); caption.text=captions[j]; caption.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+			caption.add_theme_font_size_override("font_size",18+(2 if settings.large else 0)); metric.add_child(caption)
+			var value:=Label.new(); value.text=str(int(row.get(metrics[j],0))); value.horizontal_alignment=HORIZONTAL_ALIGNMENT_RIGHT
+			value.add_theme_font_size_override("font_size",18+(2 if settings.large else 0)); value.add_theme_color_override("font_color",TEAL); metric.add_child(value)
+	var footer_y: float=frame.end.y-76
+	button("Voltar",Rect2(frame.position.x+inset,footer_y,180 if mobile_layout else 200,56),close_overlay,false,overlay)
+	button("Revisar no Caderno de Tico",Rect2(frame.position.x+inset+(200 if mobile_layout else 240),footer_y,frame.size.x-inset*2-(200 if mobile_layout else 240),56),open_learning_notebook,true,overlay)
+	overlay.set_meta("mobile_laid_out",true)
+	learning_scroll.grab_focus()
+	learning_scroll.set_deferred("scroll_vertical",learning_scroll_position)
+
+func open_learning_notebook() -> void:
+	learning_scroll_position=learning_scroll.scroll_vertical
+	notebook(); learning_book=true
 
 func select_answer(value: String) -> void:
 	if paused or answered: return

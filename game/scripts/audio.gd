@@ -25,6 +25,8 @@ var paused: bool=false:
 var enabled: bool=true
 var fade: Tween
 var warning_cooldown: float=0
+var defeat: bool=false
+var final_defeat: bool=false
 
 func _ready() -> void:
 	enabled="--smoke" not in OS.get_cmdline_user_args()
@@ -59,7 +61,7 @@ func track(index: int,instant: bool=false) -> void:
 	if paused: fade.pause()
 
 func target_volume() -> float:
-	return linear_to_db(maxf(.00001,volume*(.48 if subdued else .8)))
+	return linear_to_db(maxf(.00001,volume*(.08 if final_defeat else .25 if defeat else .48 if subdued else .8)))
 
 func _process(delta: float) -> void:
 	warning_cooldown=maxf(0,warning_cooldown-delta)

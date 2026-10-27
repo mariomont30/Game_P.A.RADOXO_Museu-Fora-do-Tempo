@@ -12,7 +12,7 @@ Uma aventura de exploração e restauração em que a matemática faz o tempo vo
 [![Baixar para Windows](https://img.shields.io/badge/BAIXAR_PARA_WINDOWS-PC_e_Notebook-e9c78b?style=for-the-badge)](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest/download/PARADOXO-Windows.zip)
 
 ![Godot](https://img.shields.io/badge/Godot-4.7.2-478cbf?logo=godotengine&logoColor=white)
-![Versão](https://img.shields.io/badge/Versão-2.14.0-e9c78b)
+![Versão](https://img.shields.io/badge/Versão-2.15.0-e9c78b)
 ![Idioma](https://img.shields.io/badge/Idioma-Português_BR-8adbc1)
 ![Tema](https://img.shields.io/badge/Matemática-Progressão_Aritmética-54617d)
 
@@ -91,6 +91,10 @@ No celular, jogue **na horizontal**. Toque em **Entrar no museu**, informe seu n
 
 Erros confirmados custam uma vida. No Difícil, o tempo esgotado também custa uma vida. Dicas não gastam vidas; o caderno mantém o cronômetro ativo no Difícil. Ao acertar, as vidas são recuperadas.
 
+**GAME OVER:** ao perder as duas vidas pela primeira vez, você tem uma tentativa extra para a restauração atual. Ela começa com duas vidas, outra questão e, no Difícil, tempo renovado. **Se perder as duas vidas novamente, todo o progresso dessa jornada será apagado e o jogo voltará à tela inicial.** Voltar ao menu ou fechar o jogo não renova a tentativa extra. Outras jornadas e configurações são preservadas.
+
+No final, **Meu aprendizado** mostra um resumo e cards por conteúdo, com acertos sem ajuda, acertos com ajuda, erros, questões puladas e tempo esgotado. O painel permite consultar o Caderno de Tico e adapta as colunas para a tela do celular.
+
 ## Controles
 
 | Ação | Computador | Celular |
@@ -106,7 +110,7 @@ Erros confirmados custam uma vida. No Difícil, o tempo esgotado também custa u
 
 Ao pausar a exploração, o personagem caminha até o banco e senta; então o jogo pausa. Ao retomar, ele se levanta. Sentar por escolha própria não pausa a partida. Nos créditos, **Pausar** interrompe somente as letras; no celular, **Retornar aos créditos** continua a leitura.
 
-As jornadas ficam salvas **no dispositivo e no navegador usados**. O progresso da Web não é sincronizado automaticamente com Windows, outro navegador ou outro celular.
+As jornadas em andamento ficam salvas **no dispositivo e no navegador usados**. Uma jornada encerrada por duas derrotas é removida do salvamento, inclusive na recuperação por backup. O progresso da Web não é sincronizado automaticamente com Windows, outro navegador ou outro celular.
 
 ## Por dentro do projeto
 
@@ -125,6 +129,7 @@ As jornadas ficam salvas **no dispositivo e no navegador usados**. O progresso d
 ├── media/                      # QR code e capturas de tela
 ├── licenses/                   # Avisos e licenças de terceiros
 ├── tools/                      # Empacotamento das distribuições
+├── tests/                      # Regressão da derrota, salvamento e interface
 ├── .github/workflows/          # Verificação e publicação do Windows
 └── index.*, mobile.*            # Distribuição Web servida pelo GitHub Pages
 ```

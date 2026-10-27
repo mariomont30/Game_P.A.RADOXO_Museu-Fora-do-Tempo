@@ -24,6 +24,18 @@ Pausar, Esc ou Enter iniciam a caminhada ao banco. A pausa entra em vigor depois
 
 Ambos começam com duas vidas. Normal não tem limite de tempo. Difícil tem cronômetro por questão; tempo esgotado custa uma vida. Erros novos e confirmados também custam uma vida. Dicas e Próxima pergunta não gastam vidas; no Difícil, trocar a questão mantém o tempo restante e o caderno não pausa o cronômetro. Ao acertar, as vidas são recuperadas.
 
+## GAME OVER e tentativa extra
+
+A primeira derrota ocorre quando as duas vidas acabam. Você pode tentar novamente a restauração atual, consultar o caderno sem cronômetro ou voltar ao menu. A nova tentativa começa com duas vidas e outra questão do mesmo conteúdo. No Difícil, o tempo é renovado e começa quando a questão está pronta.
+
+Uma segunda derrota, quando as duas vidas acabarem novamente, encerra a jornada. Um som triste acompanha a despedida, todo o progresso daquela jornada é apagado e o jogo volta à tela inicial. Não será possível recuperá-la por Continuar. As outras jornadas e as configurações continuam salvas.
+
+Essa contagem vale por toda a jornada. Acertar, mudar de galeria, sair para o menu ou reabrir o jogo não renova a tentativa extra.
+
+## Meu aprendizado
+
+No encerramento bem-sucedido, o botão Meu aprendizado apresenta obras restauradas, respostas corretas e dicas consultadas. Os cards por conteúdo separam acertos com e sem ajuda, erros, questões puladas e tempo esgotado. Consulte o Caderno de Tico para revisar e use Voltar para retornar ao resumo.
+
 ## Suas jornadas
 
 O salvamento é local. Use o mesmo navegador e endereço para continuar a versão Web, ou o mesmo usuário do Windows na versão para computador. Limpar os dados do navegador pode apagar as jornadas. Não há conta online nem sincronização entre dispositivos.

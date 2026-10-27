@@ -49,7 +49,8 @@ static func apply(g) -> void:
 		"profiles": profiles(g)
 		"ending": ending(g)
 		"credits": credits(g)
-		"success","collapse","timeout": result(g)
+		"collapse","gameover_final": gameover(g)
+		"success","timeout": result(g)
 		"restoring":
 			for c in g.ui.get_children():
 				if c is Panel: rect(c,Rect2(60,20,840,70))
@@ -83,7 +84,7 @@ static func setup(g) -> void:
 			elif old.position.y==119: rect(c,Rect2(30,57,560,44)); font(c,27,g)
 			elif old.position.y==449: c.visible=false
 			elif old.position.y==582:
-				c.text="Normal: sem tempo. Difícil: com cronômetro.\nAmbos: duas vidas; dois erros causam colapso."
+				c.text="Normal: sem tempo. Difícil: com cronômetro.\nAmbos: duas vidas e uma tentativa extra por jornada."
 				rect(c,Rect2(30,388,560,60)); font(c,17,g)
 			elif old.position.y==135: rect(c,Rect2(654,28,280,32)); font(c,17,g)
 	rect(g.setup_name,Rect2(30,112,568,64)); font(g.setup_name,25,g)
@@ -215,6 +216,7 @@ static func result(g) -> void:
 
 static func overlay(g) -> void:
 	var root: Control=g.overlay
+	if bool(root.get_meta("learning_dashboard",false)): return
 	var bs:=buttons(root)
 	var scrolls: Array=[]
 	var labels: Array=[]
@@ -228,9 +230,17 @@ static func overlay(g) -> void:
 		elif c is CheckButton: toggles.append(c)
 	for b in bs: font(b,22,g)
 	if named(root,"Retomar"):
-		for l in labels: rect(l,Rect2(70,35 if l==labels[0] else 372,820,110)); font(l,28 if l==labels[0] else 21,g)
-		move_button(root,"Retomar",Rect2(70,128,820,64))
-		for i in range(1,bs.size()): rect(bs[i],Rect2(70+((i-1)%2)*418,208+int((i-1)/2)*80,402,64))
+		g.art.presentation_rect=Rect2(0,70,490,440)
+		for c in root.get_children():
+			if c is Panel: rect(c,Rect2(484,12,464,516))
+		for i in range(labels.size()):
+			rect(labels[i],Rect2(508,32 if i==0 else 440,416,68))
+			font(labels[i],26 if i==0 else 17,g)
+		move_button(root,"Retomar",Rect2(508,116,416,64))
+		move_button(root,"Configurações",Rect2(508,198,200,64))
+		move_button(root,"Controles",Rect2(724,198,200,64))
+		move_button(root,"Trocar pergunta",Rect2(508,278,416,64))
+		move_button(root,"Voltar ao menu",Rect2(508,358,416,64))
 	elif not sliders.is_empty():
 		for i in range(labels.size()): rect(labels[i],Rect2(50,30 if i==0 else 102+(i-1)*72,350 if i>0 else 850,50)); font(labels[i],28 if i==0 else 22,g)
 		for i in range(sliders.size()): rect(sliders[i],Rect2(400,98+i*72,500,64))
@@ -251,3 +261,29 @@ static func overlay(g) -> void:
 		for l in labels: rect(l,Rect2(48,32,864,60)); font(l,27 if l.text.length()<45 else 23,g)
 		for sc in scrolls: rect(sc,Rect2(48,108,864,306))
 		for i in range(bs.size()): rect(bs[i],Rect2(48+i*455,440,409,64))
+
+static func gameover(g) -> void:
+	g.art.presentation_rect=Rect2(0,60,492,462)
+	rect(g.gameover_shade,Rect2(0,0,960,540))
+	for c in g.ui.get_children():
+		if c is Label: rect(c,Rect2(22,20,438,55)); font(c,18,g)
+	rect(g.gameover_card,Rect2(484,12,464,516))
+	for c in g.gameover_card.get_children():
+		if c is Panel: rect(c,Rect2(0,0,464,516))
+		elif c is Label:
+			var role: String=str(c.get_meta("gameover_role",""))
+			match role:
+				"eyebrow": rect(c,Rect2(24,16,416,28)); font(c,14,g)
+				"heading": rect(c,Rect2(24,47,416,60)); font(c,38,g)
+				"reason": rect(c,Rect2(24,116,416,54)); font(c,19,g)
+				"body": rect(c,Rect2(24,175,416,84)); font(c,18,g)
+				"warning": rect(c,Rect2(24,264,416,65)); font(c,17,g)
+				"returning": rect(c,Rect2(24,380,416,78)); font(c,21,g)
+	for c in g.gameover_card.get_children():
+		if c is ScrollContainer:
+			var role: String=str(c.get_meta("gameover_role",""))
+			rect(c,Rect2(24,170 if role=="body" else 252,416,78 if role=="body" else 80))
+			font(c.get_child(0).get_child(0),18 if role=="body" else 17,g)
+	var actions:=buttons(g.gameover_card)
+	for i in range(actions.size()):
+		rect(actions[i],Rect2(24,336+i*58,416,52)); font(actions[i],19,g)
