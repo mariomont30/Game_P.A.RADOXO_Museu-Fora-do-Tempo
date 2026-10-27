@@ -1,5 +1,19 @@
 # Novidades do P.A.RADOXO
 
+## 2.19
+
+- Nova abertura na Web e no Windows, com nome do jogo em destaque, cenário do museu e efeitos que respeitam Movimento reduzido.
+- Windows apresenta Entrar no museu antes de preparar os desafios e recuperar as jornadas, sem alterar os salvamentos ao fechar a abertura.
+- Barra de carregamento no topo apenas na Web para celular.
+
+- Vidas representadas por corações vermelhos: três no Normal e dois no Difícil.
+- Acertar recupera os corações e renova a tentativa extra para a próxima pergunta.
+- Trocar a pergunta mantém as vidas, a tentativa extra e o tempo restante do Difícil.
+- Segunda derrota antes de um novo acerto encerra e apaga somente a jornada atual.
+- Salvamentos anteriores são compatíveis, preservando o progresso e a tentativa em andamento.
+- Capturas do README atualizadas com o indicador de corações.
+- Abertura Web ajustada à altura disponível no celular, sem cortar o texto ou exigir rolagem.
+
 ## 2.18
 
 - Pausa mais legível no celular com texto ampliado.

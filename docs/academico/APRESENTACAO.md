@@ -59,12 +59,12 @@ As obras permanecem restauradas e podem ser revisitadas.
 
 ## Slide 6 — Regras e acessibilidade
 
-Normal: duas vidas, sem limite de tempo.
-Difícil: duas vidas e cronômetro por questão.
+Normal: três corações, sem limite de tempo.
+Difícil: dois corações e cronômetro por questão. Cada coração representa uma vida.
 
 Pausa por Esc ou Enter após caminhar e sentar no banco, retomada após levantar, navegação por setas e leitura pelo teclado, dicas, caderno de fórmulas, volume ajustável, movimento reduzido e controles por teclado ou toque.
 
-**Fala:** ao zerar, só a missão atual reinicia. Campos vazios e o mesmo erro repetido não descontam vidas adicionais.
+**Fala:** ao esgotar os corações, há uma tentativa extra para o desafio atual. Acertar recupera os corações e renova a tentativa extra. Uma segunda derrota antes do acerto encerra e apaga a jornada. Trocar a pergunta mantém as chances restantes. Campos vazios e respostas repetidas não descontam vidas adicionais.
 
 ## Slide 7 — Conteúdo matemático
 
@@ -79,7 +79,7 @@ Razão: 3. Quarto termo: 11. Soma: 26.
 
 ## Slide 8 — Banco e desenvolvimento
 
-1.050 questões, sendo 525 por modo.
+4.200 questões, sendo 2.100 por modo.
 
 Sorteio por conteúdo e histórico local. Alternativas embaralhadas, ordem preservada ao continuar e gabaritos recalculados independentemente.
 

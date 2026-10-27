@@ -4,6 +4,8 @@ Voltar ao [README](../README.md).
 
 ## Comece sua jornada
 
+A abertura ajusta o texto e o botão à altura disponível, sem exigir rolagem, inclusive com as barras do navegador visíveis.
+
 No [navegador](https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/), toque em Entrar no museu. No Windows, extraia o ZIP da [Release](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest) e abra PARADOXO.exe, mantendo PARADOXO.pck ao lado dele. Não execute o jogo diretamente de dentro do ZIP.
 
 Escolha Começar uma jornada, informe um nome ou apelido e selecione explicitamente personagem e modo. Esses três campos são obrigatórios. Para voltar a uma jornada salva, use Continuar.
@@ -24,15 +26,19 @@ Pausar, Esc ou Enter iniciam a caminhada ao banco. A pausa entra em vigor depois
 
 ## Dois modos
 
-Ambos começam com duas vidas. Normal não tem limite de tempo. Difícil tem cronômetro por questão; tempo esgotado custa uma vida. Erros novos e confirmados também custam uma vida. Dicas e Próxima pergunta não gastam vidas; no Difícil, trocar a questão mantém o tempo restante e o caderno não pausa o cronômetro. Ao acertar, as vidas são recuperadas.
+O Normal começa com **três corações** e não tem limite de tempo. O Difícil começa com **dois corações** e tem cronômetro por questão. Cada coração vermelho é uma vida. Erros novos e confirmados apagam um coração. No Difícil, o tempo esgotado também custa um coração.
+
+Dicas não gastam vidas. Próxima pergunta troca o enunciado, mas mantém os corações e a tentativa extra que restam. Ela não recupera nem acumula vidas. No Difícil, também mantém o tempo restante, e o caderno não pausa o cronômetro.
 
 ## GAME OVER e tentativa extra
 
-A primeira derrota ocorre quando as duas vidas acabam. Você pode tentar novamente a restauração atual, consultar o caderno sem cronômetro ou voltar ao menu. A nova tentativa começa com duas vidas e outra questão do mesmo conteúdo. No Difícil, o tempo é renovado e começa quando a questão está pronta.
+A primeira derrota ocorre quando todos os corações se apagam. Você pode tentar novamente a restauração atual, consultar o caderno sem cronômetro ou voltar ao menu. A tentativa extra começa com três corações no Normal ou dois no Difícil e outra questão do mesmo conteúdo. No Difícil, o tempo é renovado e começa quando a questão está pronta.
 
-Uma segunda derrota, quando as duas vidas acabarem novamente, encerra a jornada. Um som triste acompanha a despedida, todo o progresso daquela jornada é apagado e o jogo volta à tela inicial. Não será possível recuperá-la por Continuar. As outras jornadas e as configurações continuam salvas.
+**Acertar renova todas as vidas e a tentativa extra.** A contagem de derrotas zera para o próximo desafio. Os corações voltam ao limite do modo, sem serem somados aos que já restavam.
 
-Essa contagem vale por toda a jornada. Acertar, mudar de galeria, sair para o menu ou reabrir o jogo não renova a tentativa extra.
+Se todos os corações se apagarem de novo antes de acertar, a segunda derrota encerra a jornada. Um som triste acompanha a despedida, todo o progresso daquela jornada é apagado e o jogo volta à tela inicial. As outras jornadas e as configurações continuam salvas.
+
+Pausar, mudar de galeria pelo mapa, trocar a pergunta, sair para o menu ou reabrir o jogo não renovam a tentativa extra. A renovação vem do acerto.
 
 ## Meu aprendizado
 
@@ -59,3 +65,7 @@ O jogo guarda as questões vistas na jornada e varia os próximos sorteios. As r
 A Ala 1 apresenta a jornada com uma sequência automática de 3,8 segundos. Ao concluir uma galeria, use Continuar explorando para ver a entrada da próxima ala. Cada ambiente tem suas próprias cores, um título e um efeito sonoro de descoberta. Após a última obra, a passagem leva ao encerramento.
 
 Os controles e o cronômetro aguardam o fim da apresentação. Ela termina sozinha, sem opção de pular. O personagem aparece sentado no banco da nova ala. Voltar pelo mapa a uma ala já visitada usa uma passagem de menos de um segundo. A sequência respeita os volumes de Música e Efeitos sonoros. Movimento reduzido mantém a leitura e a dissolução, sem partículas ou movimento de câmera. Perder o foco da janela ou girar o celular para a vertical suspende a apresentação até o retorno.
+
+### Abertura e carregamento
+
+Na Web e no Windows, use **Entrar no museu** para chegar ao menu principal. No Windows, as etapas de preparação aparecem após o clique. Fechar a abertura não apaga suas jornadas. No celular, a apresentação cabe na altura disponível sem rolagem e a barra de carregamento fica no topo. A opção Movimento reduzido suaviza os efeitos da abertura.

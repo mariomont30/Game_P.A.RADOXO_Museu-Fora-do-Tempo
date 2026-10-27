@@ -52,6 +52,8 @@ jobs:
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --editor --quit
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game -- --smoke
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/gameover.gd
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/lives.gd
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/native_entry.gd
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/questions.gd
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/transitions.gd
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/interface.gd
@@ -85,7 +87,7 @@ jobs:
 
           Jogue online: https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/
 
-          Dois personagens, dois modos, três galerias e 4.200 questões de Progressão Aritmética. Interface para computador e celular na horizontal, Caderno de Tico, dicas e salvamento local. Consulte o README para conhecer o jogo e docs/CHANGELOG.md para as novidades.
+          Dois personagens, três galerias e 4.200 questões. Cada coração é uma vida: três no Normal e dois no Difícil. Acertar recupera os corações e renova a tentativa extra. Próxima pergunta mantém as chances restantes, sem acumular vidas. Uma segunda derrota antes de acertar encerra a jornada. Nova abertura com título animado, cenário do museu e botão Entrar no museu também no Windows. Interface para computador e celular na horizontal. Consulte o README e docs/CHANGELOG.md.
           NOTES
           if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
             gh release edit "$RELEASE_TAG" --notes-file "$RUNNER_TEMP/release-notes.md"

@@ -14,6 +14,7 @@ Voltar ao [README](../README.md).
 | `docs/academico/` | Identificação do projeto e roteiro da apresentação. |
 | `docs/referencias/` | Gabaritos para consulta. |
 | `media/` | QR code e capturas usadas na apresentação do repositório. |
+| `media/abertura/` | Cenário renderizado para o fundo da entrada Web. |
 | `tests/` | Testes de interface, exploração, perguntas, transições e carregamento. |
 | `tests/visual/` | Roteiros que geram capturas de tela. |
 | `tools/` | Preparação Web e empacotamento. |

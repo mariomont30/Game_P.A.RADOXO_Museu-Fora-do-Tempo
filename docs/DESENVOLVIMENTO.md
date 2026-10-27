@@ -15,6 +15,7 @@ python game/validate_bank.py
 godot --headless --path game --editor --quit
 godot --headless --path game -- --smoke
 godot --headless --path game --script ../tests/gameover.gd
+godot --headless --path game --script ../tests/lives.gd
 godot --headless --path game --script ../tests/questions.gd
 godot --headless --path game --script ../tests/transitions.gd
 godot --headless --path game --script ../tests/interface.gd
@@ -87,6 +88,7 @@ O teste opcional de navegador usa Node.js, `playwright-core` e um Chrome/Chromiu
 
 ```sh
 node tests/web_recovery.mjs build/site test-results/web-recovery
+node tests/web_welcome.mjs build/site test-results/web-welcome
 ```
 
 A suíte Godot `interface.gd` verifica layout, nomes e navegação. `functional_regression.gd` verifica exploração, cronômetro, salvamento, sobreposições e restauração. A execução com `-- --visual` em `interface.gd`, sem `--headless`, também grava capturas em um diretório de usuário isolado. Use um diretório de dados de teste ao rodar as suítes para não interferir nas suas jornadas.
@@ -96,3 +98,17 @@ A suíte Godot `interface.gd` verifica layout, nomes e navegação. `functional_
 A pasta criada pelo preparador contém `index.html`, `.nojekyll`, `web/` e `licenses/`. Copie esses arquivos para as posições correspondentes do repositório. Não copie somente o PCK. Os auxiliares usam `document.baseURI` para resolver os recursos, mantendo a página no endereço principal.
 
 Para testar os arquivos já organizados, também é possível executar `node tests/web_recovery.mjs . test-results/web-recovery`. A base dessa página é a pasta `web/`, enquanto o endereço e o armazenamento do navegador continuam pertencendo ao mesmo site.
+
+## Corações e tentativas
+
+`lives_display.gd` desenha os corações em vetor, sem depender de emojis do sistema. O limite é três no Normal e dois no Difícil. `start_restore` renova as chances imediatamente após um acerto, antes de salvar a animação. A retomada de uma restauração concluída também preserva essa renovação. `skip_question` mantém as vidas, a derrota usada e o tempo restante.
+
+O campo `rules_version` vale 5. A migração mantém a perda relativa de vidas das versões anteriores, sem reviver uma tentativa esgotada ou apagar uma jornada que ainda estava ativa. Estados concluídos não carregam a antiga derrota para o próximo desafio. Os testes usam dados isolados e incluem recarga, troca repetida e limite de corações.
+
+`web_welcome.mjs` confere a abertura em alturas reduzidas e com texto ampliado, sem rolagem. O CSS compacta a composição e o auxiliar observa mudanças da área visível do navegador para manter o texto completo e o botão dentro da tela.
+
+### Entrada e preparação
+
+`tests/native_entry.gd` verifica a entrada nativa, as etapas reais de carregamento, a preferência de movimento e a preservação do salvamento ao fechar antes da preparação. Execute `godot --headless --path game --script ../tests/native_entry.gd`; acrescente `-- --visual` para capturas. O Windows exportado inicia na entrada. O editor e os testes carregam diretamente para facilitar o desenvolvimento.
+
+O fundo da entrada Web está em `media/abertura/museu.png`, renderizado pelo próprio cenário. O construtor Web copia a imagem para `web/welcome-museum.png`. A preferência de movimento reduzido da Web é espelhada como um booleano em localStorage para a abertura, sem dados da jornada. A barra usa o topo apenas em dispositivos de toque.

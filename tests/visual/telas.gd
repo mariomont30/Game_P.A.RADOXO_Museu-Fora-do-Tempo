@@ -31,10 +31,12 @@ func run() -> void:
    g.current.done=range(wing*4);g.room=wing;g.mission=wing*4;g.world();await process_frame
    g.art.seated=true;g.pause_game();await shot(prefix+"-pause-"+str(wing));g.resume_from_bench();g._process(.5)
    g.start_question();await process_frame
-   g.selected_answer="errado1";g.submit();g.selected_answer="errado2";g.submit();g._process(1.05)
+   for n in range(g.max_lives()):g.selected_answer="errado"+str(n);g.submit()
+   g._process(1.05)
    await shot(prefix+"-gameover-"+str(wing))
    g.retry_gameover();await process_frame
-   g.selected_answer="errado1";g.submit();g.selected_answer="errado2";g.submit();g._process(1.05)
+   for n in range(g.max_lives()):g.selected_answer="errado"+str(n);g.submit()
+   g._process(1.05)
    await shot(prefix+"-final-"+str(wing));g._process(4.7)
   g.create_profile("Aprendizado","normal");g.current.done=range(12)
   g.current.learning={"2":{"sem_ajuda":4,"com_ajuda":1,"erros":2},"6":{"com_ajuda":1,"erros":4,"puladas":2}}

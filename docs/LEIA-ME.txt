@@ -1,4 +1,4 @@
-GUIA RÁPIDO | P.A.RADOXO 2.18 | O Museu Fora do Tempo
+GUIA RÁPIDO | P.A.RADOXO 2.19 | O Museu Fora do Tempo
 
 Resumo de acesso e informações essenciais para começar a jogar.
 
@@ -6,12 +6,20 @@ Jogue: https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/
 Windows: baixe a Release, extraia tudo e abra PARADOXO.exe ao lado de PARADOXO.pck.
 Projeto: game/project.godot, no Godot 4.7.2.
 
-GAME OVER: duas vidas por tentativa. A primeira derrota permite uma tentativa extra.
-A segunda derrota apaga todo o progresso da jornada atual e volta à tela inicial.
-Outras jornadas e configurações são preservadas. Sair do jogo não renova a tentativa.
-No Difícil, a tentativa extra tem um novo cronômetro, iniciado com a questão pronta.
+VIDAS: cada coração vermelho representa uma vida.
+Normal: três corações. Difícil: dois corações.
+Perder uma vida apaga um coração. Ao esgotá-los, aparece GAME OVER.
+A primeira derrota permite uma tentativa extra, com os corações do modo.
+Acertar recupera os corações e renova a tentativa extra para o próximo desafio.
+Próxima pergunta mantém as vidas e a chance extra restantes, sem acumular.
+No Difícil, a troca mantém o tempo, e a tentativa extra renova o cronômetro.
+Uma segunda derrota antes de acertar apaga a jornada atual e volta ao início.
+Outras jornadas e configurações são preservadas. Sair não renova as chances.
 
 Pausa com a galeria ao fundo. Meu aprendizado mostra um resumo e cards por conteúdo.
 No celular, jogue na horizontal e use os controles por toque.
 Para conhecer o projeto, consulte README.md na raiz do repositório.
 Para instruções completas, consulte GUIA-DO-JOGADOR.md nesta pasta docs/.
+
+ABERTURA
+No Windows e na Web, clique em Entrar no museu e aguarde a preparação antes de escolher sua jornada. No celular, a barra de carregamento fica no topo.

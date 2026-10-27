@@ -7,6 +7,8 @@ const Audio=preload("res://scripts/audio.gd")
 const Title=preload("res://scripts/title.gd")
 const Character=preload("res://scripts/character_view.gd")
 const MobileLayout=preload("res://scripts/mobile_layout.gd")
+const LivesDisplay=preload("res://scripts/lives_display.gd")
+const EntryBackdrop=preload("res://scripts/entry_backdrop.gd")
 const GalleryTransition=preload("res://scripts/gallery_transition.gd")
 const QuestionDraw=preload("res://scripts/question_draw.gd")
 const SAVE="user://paradoxo_v2.json"
@@ -36,7 +38,7 @@ var hints: int=0
 var selected_answer: String=""
 var sequence_slots: Array=[]
 var slot_index: int=0
-var lives_label: Label
+var lives_label: LivesDisplay
 var timer_label: Label
 var status: Label
 var objective: Label
@@ -55,6 +57,14 @@ var tutorial_answer: int=0
 var tutorial_seen: Array=[]
 var startup_warning: String=""
 var testing: bool=false
+var resources_ready: bool=false
+var native_loading_label: Label
+var native_loading_progress: ProgressBar
+var native_entry_scene: Control
+var native_entry_effects: Control
+var native_entry_button: Button
+var native_entry_time: float=0
+var native_entry_hover: int=-1
 var returning_to_pause: bool=false
 var ending_elapsed: float=0
 var credit_roll: Label
@@ -119,18 +129,17 @@ func _ready() -> void:
 	theme=game_theme
 	testing="--smoke" in OS.get_cmdline_user_args()
 	randomize()
-	db=JSON.parse_string(FileAccess.get_file_as_string("res://data/questions.json"))
-	legacy_db=JSON.parse_string(FileAccess.get_file_as_string("res://data/questions_legacy_215.json"))
-	for item in legacy_db+db: question_by_id[item.id]=item
-	load_save()
-	art=Museum.new(); art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); add_child(art)
-	art.reached_exhibit.connect(interact)
 	audio=Audio.new(); add_child(audio)
-	art.footstep.connect(audio.step)
 	ui_feedback=audio.hover
-	if "--capture" in OS.get_cmdline_user_args(): DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	init_ui()
 	get_tree().auto_accept_quit=false
+	# Exported Windows builds enter through the same welcome/load sequence as the Web.
+	if not OS.has_feature("web") and not OS.has_feature("editor") and not testing and "--capture" not in OS.get_cmdline_user_args():
+		load_entry_preferences(); show_native_entry(); return
+	load_question_resources()
+	load_save()
+	create_museum_scene()
+	resources_ready=true
 	menu()
 	audio.track(0)
 	if not testing and not settings.reduced:
@@ -140,6 +149,81 @@ func _ready() -> void:
 	if testing: call_deferred("smoke_test")
 	elif "--capture" in OS.get_cmdline_user_args(): call_deferred("capture")
 	elif not startup_warning.is_empty(): info("Seu progresso",startup_warning)
+
+func load_question_resources() -> void:
+	db=JSON.parse_string(FileAccess.get_file_as_string("res://data/questions.json"))
+	legacy_db=JSON.parse_string(FileAccess.get_file_as_string("res://data/questions_legacy_215.json"))
+	question_by_id.clear()
+	for item in legacy_db+db: question_by_id[item.id]=item
+
+func create_museum_scene() -> void:
+	if is_instance_valid(art): remove_child(art); art.queue_free()
+	art=Museum.new(); art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); add_child(art)
+	move_child(art,0)
+	art.reached_exhibit.connect(interact); art.footstep.connect(audio.step)
+
+func load_entry_preferences() -> void:
+	var saved: Variant=read_json(SAVE)
+	if not saved is Dictionary: saved=read_json(SAVE+".bak")
+	if not saved is Dictionary or not saved.get("settings") is Dictionary:return
+	for key in ["master","music","effects"]:
+		if number_in(saved.settings.get(key),0,1,false): settings[key]=float(saved.settings[key])
+	for key in ["large","reduced"]:
+		if saved.settings.get(key) is bool: settings[key]=saved.settings[key]
+
+func show_native_entry() -> void:
+	resources_ready=false;screen="entry";paused=false
+	if is_instance_valid(art): art.visible=false
+	reset_refs()
+	var background:=ColorRect.new();background.color=Color("101d2c");background.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	place(background,Rect2(0,0,1280,800))
+	native_entry_effects=EntryBackdrop.new();place(native_entry_effects,Rect2(0,0,1280,800));native_entry_effects.reduced=settings.reduced
+	native_entry_scene=Museum.new();place(native_entry_scene,Rect2(0,0,1280,800))
+	native_entry_scene.background_visible=false;native_entry_scene.presentation_rect=Rect2(565,105,705,600)
+	native_entry_scene.menu_mode=true;native_entry_scene.show_pair=true;native_entry_scene.restored=[0,1,2,3]
+	native_entry_scene.active=-1;native_entry_scene.reduced=settings.reduced
+	native_entry_time=0;native_entry_hover=-1
+	var eyebrow:=label_at("UMA AVENTURA DE RESTAURAÇÃO",Rect2(70,145,560,38),16,TEAL)
+	title_label=Title.new();place(title_label,Rect2(70,195,585,110));title_label.scale=Vector2.ONE*1.12;title_label.reduced=settings.reduced
+	label_at("O MUSEU FORA DO TEMPO",Rect2(70,336,560,48),27)
+	var description:=label_at("Restaure 12 obras, descubra padrões e devolva vida às histórias.",Rect2(70,413,520,82),23)
+	description.horizontal_alignment=HORIZONTAL_ALIGNMENT_LEFT
+	native_entry_button=button("Entrar no museu",Rect2(70,535,410,66),start_native_loading,true)
+	native_entry_button.pivot_offset=native_entry_button.size*.5;native_entry_button.grab_focus()
+	var entry_style:=style(GOLD,Color("fff0c5"),16);entry_style.shadow_color=Color(.91,.78,.54,.20);entry_style.shadow_size=12
+	native_entry_button.add_theme_stylebox_override("normal",entry_style)
+	var hint:=label_at("Explore com as setas ou o mouse. Suas jornadas ficam salvas neste usuário do Windows.",Rect2(70,633,535,75),17,MUTED)
+	hint.horizontal_alignment=HORIZONTAL_ALIGNMENT_LEFT
+	audio.volume=float(settings.music)*float(settings.master);audio.effects_volume=float(settings.effects)*float(settings.master)
+	audio.track(0)
+
+func native_loading_step(message: String,value: float) -> void:
+	native_loading_label.text=message;native_loading_progress.value=value
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+func start_native_loading() -> void:
+	if screen!="entry":return
+	screen="loading";reset_refs()
+	var background:=ColorRect.new();background.color=Color("101d2c");background.mouse_filter=Control.MOUSE_FILTER_IGNORE
+	place(background,Rect2(0,0,1280,800))
+	var title:=label_at("P.A.RADOXO",Rect2(200,250,880,62),40,GOLD)
+	title.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
+	native_loading_label=label_at("Preparando o museu…",Rect2(200,335,880,58),24,MUTED)
+	native_loading_label.horizontal_alignment=HORIZONTAL_ALIGNMENT_CENTER
+	native_loading_progress=ProgressBar.new();place(native_loading_progress,Rect2(240,690,800,12))
+	native_loading_progress.show_percentage=false
+	native_loading_progress.add_theme_stylebox_override("background",style(Color("1d3849"),Color("1d3849"),6))
+	native_loading_progress.add_theme_stylebox_override("fill",style(TEAL,TEAL,6))
+	await native_loading_step("Abrindo os desafios…",0)
+	load_question_resources()
+	await native_loading_step("Recuperando suas jornadas…",40)
+	load_save()
+	await native_loading_step("Preparando as galerias…",75)
+	create_museum_scene();art.visible=false
+	await native_loading_step("O museu está pronto.",100)
+	resources_ready=true;menu()
+	if not startup_warning.is_empty():info("Seu progresso",startup_warning)
 
 func _apply_mobile_layout() -> void:
 	mobile_layout_pending=false; mobile_applying=true
@@ -196,7 +280,7 @@ func new_game() -> void:
 	label_at("Mesmas habilidades. Duas aparências originais.",Rect2(79,449,575,30),17,MUTED)
 	setup_mode_buttons.append(button("Normal",Rect2(79,515,280,58),func(): select_setup_mode("normal")))
 	setup_mode_buttons.append(button("Difícil",Rect2(374,515,280,58),func(): select_setup_mode("hard")))
-	label_at("Normal: sem cronômetro, dicas graduais.\nDifícil: tempo por questão, uma dica.\nAmbos: duas vidas e uma tentativa extra por jornada.",Rect2(79,582,575,96),16,MUTED)
+	label_at("Normal: 3 corações, sem cronômetro.\nDifícil: 2 corações, tempo por questão.\nA tentativa extra é renovada ao acertar.",Rect2(79,582,575,96),16,MUTED)
 	button("Voltar",Rect2(191,695,170,40),menu)
 	button("Iniciar",Rect2(379,695,170,40),start_new_journey)
 	panel(Rect2(760,100,450,610))
@@ -280,7 +364,7 @@ func clean_name(value: String,fallback: bool=true) -> String:
 
 func create_profile(player_name: String,mode: String,present: bool=false) -> void:
 	learning_scroll_position=0
-	current={"id":str(Time.get_unix_time_from_system())+str(randi()%1000),"name":clean_name(player_name),"gender":gender,"mode":mode,"done":[],"seen":[],"active":{},"lives":2,"rules_version":4,"room":0,"hero":[4.5,5.8],"tutorial":true,"phase":"world","balance":[0,0,0,0],"attempts":0,"correct":0,"hints_used":0,"learning":{},"defeats":0,"last_defeat_timeout":false,"draw_state":{},"last_answer_position":-1,"introduced_galleries":[]}
+	current={"id":str(Time.get_unix_time_from_system())+str(randi()%1000),"name":clean_name(player_name),"gender":gender,"mode":mode,"done":[],"seen":[],"active":{},"lives":max_lives(mode),"rules_version":5,"room":0,"hero":[4.5,5.8],"tutorial":true,"phase":"world","balance":[0,0,0,0],"attempts":0,"correct":0,"hints_used":0,"learning":{},"defeats":0,"last_defeat_timeout":false,"draw_state":{},"last_answer_position":-1,"introduced_galleries":[]}
 	profiles.append(current)
 	art.gender=gender
 	mission=0; room=0
@@ -328,7 +412,7 @@ func tutorial_controls() -> void:
 	reset_refs(); panel(Rect2(150,85,980,630))
 	label_at("UM PEQUENO GUIA DE EXPLORAÇÃO",Rect2(190,120,900,40),16,TEAL)
 	label_at("Caminhe. Observe. Restaure.",Rect2(190,180,890,70),37,GOLD)
-	prose("CAMINHAR · Setas ou clique no chão.\nEXAMINAR · Clique numa obra ou pressione E perto dela.\nO marcador ! mostra a próxima missão. O símbolo ✓ marca uma obra restaurada.\n\nErrar custa uma vida. Se as vidas acabarem, você tem uma tentativa extra. Uma segunda derrota apaga essa jornada.\nDicas e trocas não gastam vidas. No Difícil, trocar mantém o tempo restante.\n\nEsc ou Enter leva ao banco e pausa depois de sentar. Ao retomar, o personagem se levanta antes de liberar os controles. Os botões do menu continuam com som. No Difícil, abrir o caderno mantém o tempo ativo.\n\nSiga o marcador dourado para começar.",Rect2(190,270,880,335),21)
+	prose("CAMINHAR · Setas ou clique no chão.\nEXAMINAR · Clique numa obra ou pressione E perto dela.\nO marcador ! mostra a próxima missão. O símbolo ✓ marca uma obra restaurada.\n\nCada coração é uma vida. Normal: três corações. Difícil: dois. Ao esgotá-los, você tem uma tentativa extra. Acertar recupera os corações e renova essa chance. Uma segunda derrota antes de acertar apaga a jornada.\nDicas e trocas não gastam vidas. Trocar não recupera corações nem renova a tentativa extra. No Difícil, mantém o tempo restante.\n\nEsc ou Enter leva ao banco e pausa depois de sentar. Ao retomar, o personagem se levanta antes de liberar os controles. Os botões do menu continuam com som. No Difícil, abrir o caderno mantém o tempo ativo.\n\nSiga o marcador dourado para começar.",Rect2(190,270,880,335),21)
 	button("Explorar a galeria",Rect2(190,631,350,52),func(): current.tutorial=true; current.phase="world"; phase="world"; save_game(); begin_gallery_transition(0,"opening"),true)
 
 func profile_menu() -> void:
@@ -472,12 +556,12 @@ func header() -> void:
 	label_at("P.A.RADOXO",Rect2(48,39,215,36),24,GOLD)
 	var name_label:=label_at(str(current.name),Rect2(275,41,265,32),20)
 	name_label.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
-	lives_label=label_at("",Rect2(550,42,300,32),20,TEAL); update_lives()
+	lives_label=LivesDisplay.new(); place(lives_label,Rect2(550,42,300,32)); update_lives()
 	label_at("%02d/12" % current.done.size(),Rect2(910,43,90,30),18,MUTED)
 	button("II  Pausar",Rect2(1060,33,168,45),pause_game)
 
 func update_lives() -> void:
-	if is_instance_valid(lives_label): lives_label.text="%d %s · %s" % [maxi(0,int(current.lives)),"VIDA" if int(current.lives)==1 else "VIDAS","NORMAL" if current.mode=="normal" else "DIFÍCIL"]
+	if is_instance_valid(lives_label): lives_label.configure(int(current.lives),max_lives(),"NORMAL" if current.mode=="normal" else "DIFÍCIL",settings.large)
 
 func interact_nearest() -> void:
 	if screen!="world" or paused or not pause_stage.is_empty(): return
@@ -647,7 +731,7 @@ func challenge() -> void:
 	button("Dica",Rect2(52,695,160,56),show_hint)
 	button("Caderno",Rect2(230,695,183,56),notebook)
 	button("Confirmar restauração",Rect2(790,695,390,56),submit,true)
-	button("Próxima pergunta",Rect2(470,695,295,56),skip_question).tooltip_text="Sem perder vidas. No Difícil, o tempo restante é mantido."
+	button("Próxima pergunta",Rect2(470,695,295,56),skip_question).tooltip_text="Troca sem gastar vidas. Não recupera corações nem renova a tentativa extra. No Difícil, mantém o tempo restante."
 	update_timer(); save_game()
 	call_deferred("mark_question_ready")
 
@@ -737,7 +821,7 @@ func collapse() -> void:
 	gameover_final=int(current.get("defeats",0))>=2
 	if not gameover_final: current.defeats=1
 	var player_name: String=str(current.name)
-	var reason: String="O tempo acabou e suas vidas se esgotaram." if current.get("last_defeat_timeout",false) else "Suas duas vidas se esgotaram."
+	var reason: String="O tempo acabou e o último coração se apagou." if current.get("last_defeat_timeout",false) else "Seus corações se apagaram."
 	room=int(mission/4)
 	art.room=room; art.gender=current.gender; art.restored=current.done.duplicate()
 	art.show_pair=false; art.menu_mode=false; art.preview=false; art.active=-1
@@ -771,7 +855,7 @@ func collapse() -> void:
 	var body_scroll:=ScrollContainer.new(); body_scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
 	place(body_scroll,Rect2(32,233,446,110),gameover_card); body_scroll.set_meta("gameover_role","body")
 	padded_scroll_content(body_scroll,body)
-	var warning: String="Todo o progresso desta jornada foi apagado." if gameover_final else "Última chance. Uma nova derrota apaga todo o progresso desta jornada."
+	var warning: String="Todo o progresso desta jornada foi apagado." if gameover_final else "Última chance neste desafio. Uma nova derrota antes de acertar apaga esta jornada."
 	if gameover_final and not gameover_storage_ok: warning="Não conseguimos concluir o salvamento. Tente voltar ao início pelo botão abaixo."
 	var note:=label_at(warning,Rect2(32,354,446,94),18,Color("e8b5a8"),gameover_card)
 	note.horizontal_alignment=HORIZONTAL_ALIGNMENT_FILL
@@ -835,8 +919,15 @@ func process_gameover(delta: float) -> void:
 		gameover_primary.grab_focus(); gameover_returning=true
 	if screen=="gameover_final" and gameover_storage_ok and gameover_elapsed>=4.6: menu()
 
-func max_lives() -> int:
-	return 2
+func max_lives(mode: String="") -> int:
+	var selected_mode: String=mode if not mode.is_empty() else str(current.get("mode","normal"))
+	return 2 if selected_mode=="hard" else 3
+
+func reset_question_chances(profile: Dictionary) -> void:
+	profile.lives=max_lives(str(profile.mode))
+	profile.defeats=0
+	profile.last_defeat_timeout=false
+	profile.rules_version=5
 
 func solution_text() -> String:
 	if question.is_empty(): return "Observe os padrões e consulte as fórmulas de Tico."
@@ -844,7 +935,7 @@ func solution_text() -> String:
 
 func start_restore() -> void:
 	screen="restoring"; phase="restoring"; current.phase=phase; current.restoring_id=mission
-	current.lives=max_lives()
+	reset_question_chances(current)
 	update_snapshot(); save_game()
 	reset_refs(); art.restored=current.done.duplicate(); art.room=int(mission/4); art.menu_mode=false
 	art.restore(mission%4); restore_remaining=2.7 if not settings.reduced else .3
@@ -853,6 +944,7 @@ func start_restore() -> void:
 	label_at("✓ O padrão se encaixou. A história está voltando…",Rect2(335,51,610,34),20,GOLD)
 
 func finish_restore(resuming: bool=false) -> void:
+	reset_question_chances(current)
 	if mission not in current.done: current.done.append(mission)
 	if not resuming: current.last_solution=solution_text()
 	current.active={}; current.phase="success"; phase="success"; current.restoring_id=mission
@@ -1004,7 +1096,7 @@ func open_settings() -> void:
 	button("Salvar e voltar",Rect2(275,635,320,50),settings_back,true,overlay)
 
 func help_text() -> String:
-	return "OBJETIVO\nRestaure 12 exposições em três alas. Cada engrenagem recuperada abre a próxima ala.\n\nCONTROLES\nEXPLORAÇÃO: use as setas, os botões direcionais ou clique no chão para caminhar. Clique numa obra para aproximar-se. Use Examinar ou E para abrir.\n\nBANCO: você começa sentado em cada galeria, inclusive na primeira. Levantar ou uma seta permite explorar. Clicar no banco ou em Sentar faz o personagem caminhar e sentar, sem pausar.\n\nPAUSA: Pausar, Esc ou Enter levam o personagem até o banco. O jogo e o som do cenário pausam somente depois que ele se senta. Ao retomar, ele se levanta. Em seguida os controles são liberados. No Difícil, o tempo continua durante a caminhada até o banco.\n\nMENUS: use as setas para navegar, Espaço para ativar a opção destacada e Tab para alternar o foco. Em textos longos, cima/baixo rolam o conteúdo. Page Up/Page Down, Home e End também funcionam. Esc ou Enter retomam o jogo quando ele está pausado.\n\nCELULAR\nJogue na horizontal. Toque nas opções e nas obras, use os botões direcionais para caminhar e arraste os textos para rolar. O nome é digitado pelo teclado do navegador. Nos créditos pausados, Retornar aos créditos permite continuar pelo toque.\n\nCRÉDITOS FINAIS\nPausar interrompe somente as letras. A música e as galerias continuam, respeitando Movimento reduzido. Esc ou Enter pausam e retomam os letreiros. Enquanto as letras estão pausadas, o botão Sair para o menu principal encerra os créditos. Não há caminhada ao banco nem menu de pausa nos créditos.\n\nDESAFIOS\nIdentifique padrões e calcule termos, razões e somas. Escolha uma alternativa e confirme. O sorteio respeita o conteúdo da obra. Próxima pergunta não gasta vidas. No Difícil, mantém o tempo restante.\n\nESTABILIDADE\nQuando as duas vidas acabam, aparece GAME OVER. Normal: sem tempo. Difícil: 60 a 120 segundos. Quando o tempo acaba, você também perde uma vida. Cada erro novo e confirmado custa uma vida. Campos vazios e respostas repetidas não descontam novamente. Se as vidas acabarem, aparece GAME OVER. Você tem uma tentativa extra por jornada. Ela reinicia só a restauração atual, com duas vidas e uma nova questão. No Difícil, o tempo também é renovado. Se perder as duas vidas novamente, esta jornada e todas as suas restaurações serão apagadas. As outras jornadas e as configurações são preservadas. Voltar ao menu ou fechar o jogo não renova a tentativa extra. Acertar recupera as vidas, mas não apaga uma derrota anterior.\n\nDICAS\nDicas não custam vidas. O caderno mantém o tempo ativo no Difícil. A pausa encobre a questão durante a ida ao banco. O tempo só para depois de sentar."
+	return "OBJETIVO\nRestaure 12 exposições em três alas. Cada engrenagem recuperada abre a próxima ala.\n\nCONTROLES\nEXPLORAÇÃO: use as setas, os botões direcionais ou clique no chão para caminhar. Clique numa obra para aproximar-se. Use Examinar ou E para abrir.\n\nBANCO: você começa sentado em cada galeria, inclusive na primeira. Levantar ou uma seta permite explorar. Clicar no banco ou em Sentar faz o personagem caminhar e sentar, sem pausar.\n\nPAUSA: Pausar, Esc ou Enter levam o personagem até o banco. O jogo e o som do cenário pausam somente depois que ele se senta. Ao retomar, ele se levanta. Em seguida os controles são liberados. No Difícil, o tempo continua durante a caminhada até o banco.\n\nMENUS: use as setas para navegar, Espaço para ativar a opção destacada e Tab para alternar o foco. Em textos longos, cima/baixo rolam o conteúdo. Page Up/Page Down, Home e End também funcionam. Esc ou Enter retomam o jogo quando ele está pausado.\n\nCELULAR\nJogue na horizontal. Toque nas opções e nas obras, use os botões direcionais para caminhar e arraste os textos para rolar. O nome é digitado pelo teclado do navegador. Nos créditos pausados, Retornar aos créditos permite continuar pelo toque.\n\nCRÉDITOS FINAIS\nPausar interrompe somente as letras. A música e as galerias continuam, respeitando Movimento reduzido. Esc ou Enter pausam e retomam os letreiros. Enquanto as letras estão pausadas, o botão Sair para o menu principal encerra os créditos. Não há caminhada ao banco nem menu de pausa nos créditos.\n\nDESAFIOS\nIdentifique padrões e calcule termos, razões e somas. Escolha uma alternativa e confirme. O sorteio respeita o conteúdo da obra. Próxima pergunta não gasta vidas. No Difícil, mantém o tempo restante.\n\nVIDAS E GAME OVER\nNormal: três corações. Difícil: dois corações. Cada coração é uma vida. Ao esgotá-los, aparece GAME OVER. Normal: sem tempo. Difícil: 60 a 120 segundos. Quando o tempo acaba, você também perde uma vida. Cada erro novo e confirmado custa uma vida. Campos vazios e respostas repetidas não descontam novamente. Se as vidas acabarem, aparece GAME OVER. Você tem uma tentativa extra por desafio, renovada ao acertar. Ela reinicia só a restauração atual, com os corações do modo e uma nova questão do mesmo desafio. No Difícil, o tempo também é renovado. Se esgotar os corações novamente antes de acertar, esta jornada e todas as suas restaurações serão apagadas. As outras jornadas e as configurações são preservadas. Voltar ao menu ou fechar o jogo não renova a tentativa extra. Acertar recupera todos os corações e zera a contagem de derrotas para a próxima pergunta. Próxima pergunta mantém os corações e a tentativa extra que restam.\n\nDICAS\nDicas não custam vidas. O caderno mantém o tempo ativo no Difícil. A pausa encobre a questão durante a ida ao banco. O tempo só para depois de sentar."
 
 func credits() -> void:
 	audio.track(5)
@@ -1097,6 +1189,20 @@ func update_timer() -> void:
 	timer_label.add_theme_color_override("font_color",Color("efb3a4") if time_left<15 and current.mode=="hard" else GOLD)
 
 func _process(delta: float) -> void:
+	if screen in ["entry","loading"]:
+		audio.volume=float(settings.music)*float(settings.master);audio.effects_volume=float(settings.effects)*float(settings.master)
+		if is_instance_valid(title_label):title_label.reduced=settings.reduced
+		if screen=="entry":
+			native_entry_time+=delta
+			if is_instance_valid(native_entry_button):
+				var pulse: float=0 if settings.reduced else sin(native_entry_time*2.2)*.008
+				native_entry_button.scale=Vector2.ONE*(1.0+pulse+(.02 if native_entry_button.is_hovered() else 0.0))
+			if is_instance_valid(native_entry_scene):
+				native_entry_scene.reduced=settings.reduced;native_entry_scene.pointer=get_global_mouse_position()
+				var hovered: int=native_entry_scene.menu_character_at(native_entry_scene.pointer)
+				if hovered>=0 and hovered!=native_entry_hover:native_entry_scene.greetings[hovered]=1.2;audio.hover()
+				native_entry_hover=hovered
+		return
 	if is_instance_valid(gallery_transition):
 		if mobile_layout and OS.has_feature("web"):
 			mobile_orientation_timer+=delta
@@ -1201,6 +1307,10 @@ func toggle_pause_key() -> void:
 	else: pause_game()
 
 func _input(event: InputEvent) -> void:
+	if screen=="loading":
+		get_viewport().set_input_as_handled();return
+	if screen=="entry" and event is InputEventKey and event.pressed and not event.echo and event.keycode in [KEY_ENTER,KEY_KP_ENTER,KEY_SPACE]:
+		start_native_loading();get_viewport().set_input_as_handled();return
 	if is_instance_valid(gallery_transition):
 		get_viewport().set_input_as_handled();return
 	if is_instance_valid(art) and (event is InputEventMouseMotion or event is InputEventMouseButton): art.pointer=event.position
@@ -1269,8 +1379,11 @@ func _notification(what: int) -> void:
 	if what==NOTIFICATION_APPLICATION_FOCUS_OUT and screen in ["world","challenge","restoring"] and not testing and "--capture" not in OS.get_cmdline_user_args():
 		pause_game()
 	if what==NOTIFICATION_WM_CLOSE_REQUEST:
-		update_snapshot(); save_game()
+		save_before_close()
 		shutdown()
+
+func save_before_close() -> void:
+	if resources_ready: update_snapshot(); save_game()
 
 func update_snapshot() -> void:
 	if current.is_empty(): return
@@ -1301,7 +1414,8 @@ func valid_profile(p: Variant) -> bool:
 		if not number_in(id,0,11): return false
 	for id in p.seen:
 		if not id is String: return false
-	if not number_in(p.get("room"),0,2) or not number_in(p.get("lives"),0,5 if p.mode=="normal" else 3): return false
+	var allowed_lives: int=max_lives(p.mode) if int(p.get("rules_version",0))>=5 else 5 if p.mode=="normal" else 3
+	if not number_in(p.get("room"),0,2) or not number_in(p.get("lives"),0,allowed_lives): return false
 	if not p.get("hero") is Array or p.hero.size()!=2: return false
 	if not number_in(p.hero[0],.0,9,false) or not number_in(p.hero[1],.0,7,false): return false
 	for key in ["attempts","correct","hints_used","skipped","restoring_id"]:
@@ -1316,7 +1430,7 @@ func valid_profile(p: Variant) -> bool:
 	for gallery in introduced:
 		if not number_in(gallery,0,2) or gallery in unique_galleries:return false
 		unique_galleries.append(gallery)
-	if not number_in(p.get("rules_version",0),0,4): return false
+	if not number_in(p.get("rules_version",0),0,5): return false
 	if not number_in(p.get("defeats",0),0,2): return false
 	if not p.get("last_defeat_timeout",false) is bool: return false
 	if not number_in(p.get("last_answer_position",-1),-1,3): return false
@@ -1406,8 +1520,12 @@ func normalize_profile(p: Dictionary) -> Dictionary:
 	for id in p.done:
 		if int(id) not in clean.done: clean.done.append(int(id))
 	clean.room=int(p.room)
-	var old_max: int=2 if int(p.get("rules_version",0))>=4 else 5 if p.mode=="normal" else 3
-	clean.lives=clampi(2-(old_max-int(p.lives)),0,2); clean.rules_version=4
+	var saved_rules: int=int(p.get("rules_version",0))
+	var limit: int=max_lives(p.mode)
+	var old_max: int=limit if saved_rules>=5 else 2 if saved_rules>=4 else 5 if p.mode=="normal" else 3
+	# Preserve damage without reviving an exhausted attempt or ending a live legacy save.
+	clean.lives=clampi(limit-(old_max-int(p.lives)),1,limit) if int(p.lives)>0 else 0
+	clean.rules_version=5
 	clean.balance=p.get("balance",[0,0,0,0]).map(func(n): return int(n))
 	clean.introduced_galleries=p.get("introduced_galleries",[0,1,2]).map(func(n): return int(n))
 	clean.last_answer_position=int(p.get("last_answer_position",-1))
@@ -1424,6 +1542,11 @@ func normalize_profile(p: Dictionary) -> Dictionary:
 		state.families=counts
 	clean.defeats=maxi(int(p.get("defeats",0)),1 if clean.lives<=0 else 0)
 	clean.last_defeat_timeout=bool(p.get("last_defeat_timeout",false))
+	# An already solved question must not carry the old journey-wide defeat into the next one.
+	var completed: bool=str(p.get("phase","world")) in ["success","restoring"]
+	var legacy_full_world: bool=saved_rules<5 and str(p.get("phase","world"))=="world" and p.active.is_empty() and not clean.done.is_empty() and int(p.lives)==old_max
+	if clean.defeats<2 and (completed or legacy_full_world):
+		reset_question_chances(clean)
 	return clean
 
 func storage_failure() -> void:
@@ -1446,6 +1569,8 @@ func save_game() -> void:
 		if valid_save(old) and DirAccess.copy_absolute(path,path+".bak")!=OK: storage_failure(); return
 	# Keep the original and backup in place until the replacement is fully written.
 	if DirAccess.rename_absolute(ProjectSettings.globalize_path(temporary),path)!=OK: storage_failure(); return
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("if(window.paradoxo&&typeof window.paradoxo.setReduced==='function'){window.paradoxo.setReduced("+("true" if settings.reduced else "false")+")}")
 	if is_instance_valid(save_notice): save_notice.queue_free(); save_notice=null
 
 func load_save() -> void:

@@ -84,7 +84,7 @@ static func setup(g) -> void:
 			elif old.position.y==119: rect(c,Rect2(30,57,560,44)); font(c,27,g)
 			elif old.position.y==449: c.visible=false
 			elif old.position.y==582:
-				c.text="Normal: sem tempo. Difícil: com cronômetro.\nAmbos: duas vidas e uma tentativa extra por jornada."
+				c.text="Normal: 3 corações, sem tempo. Difícil: 2, com tempo.\nAo acertar, os corações e a chance extra voltam."
 				rect(c,Rect2(30,388,560,60)); font(c,17,g)
 			elif old.position.y==135: rect(c,Rect2(654,28,280,32)); font(c,17,g)
 	rect(g.setup_name,Rect2(30,112,568,64)); font(g.setup_name,25,g)
@@ -101,11 +101,11 @@ static func setup(g) -> void:
 static func header(g) -> void:
 	for c in g.ui.get_children():
 		var old: Rect2=c.get_meta("desktop_rect",Rect2())
-		if c is Panel and old.position.y==22: rect(c,Rect2(12,8,936,68))
+		if c==g.lives_label: rect(c,Rect2(394,26,300,38))
+		elif c is Panel and old.position.y==22: rect(c,Rect2(12,8,936,68))
 		elif c is Label and old.position.y<80:
 			if old.position.x==48: rect(c,Rect2(26,26,190,38)); font(c,22,g)
 			elif old.position.x==275: rect(c,Rect2(220,27,170,36)); font(c,18,g)
-			elif old.position.x==550: rect(c,Rect2(394,26,300,38)); font(c,20,g)
 			elif old.position.x==910: rect(c,Rect2(700,27,75,36)); font(c,18,g)
 	move_button(g.ui,"II  Pausar",Rect2(782,10,160,64))
 

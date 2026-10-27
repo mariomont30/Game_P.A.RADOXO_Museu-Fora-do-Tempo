@@ -12,6 +12,7 @@ const RUG_BOUNDS = Rect2(3,1,3,5)
 const BENCH_EXIT = Vector2(4.5,4.75)
 const MENU_SEATS = [Vector2(4.95,3.78),Vector2(4.05,3.78)]
 const TYPES = [["painting","statue","mosaic","portrait"],["dinosaur","crystal","fossil","vitrine"],["clock","orrery","machine","time_core"]]
+var background_visible: bool=true
 var show_pair: bool=false
 var seated: bool=false
 var rise_progress: float=0.0
@@ -198,11 +199,12 @@ func text(p: Vector2,s: String,n: int,c: Color) -> void:
 	draw_string(font,p,s,HORIZONTAL_ALIGNMENT_LEFT,-1,n,c)
 
 func _draw() -> void:
-	draw_rect(Rect2(0,0,1280,800),Color("101d2c"))
-	for i in range(12):
-		draw_circle(Vector2(830,400),640-i*40,Color(.14,.27,.30,.015))
-	for i in range(36):
-		draw_circle(Vector2(fmod(i*137.4+sin(time*.3+i)*9,1280),fmod(i*67.2+time*2,800)),1+(i%2),Color(.65,.8,.73,.14))
+	if background_visible:
+		draw_rect(Rect2(0,0,1280,800),Color("101d2c"))
+		for i in range(12):
+			draw_circle(Vector2(830,400),640-i*40,Color(.14,.27,.30,.015))
+		for i in range(36):
+			draw_circle(Vector2(fmod(i*137.4+sin(time*.3+i)*9,1280),fmod(i*67.2+time*2,800)),1+(i%2),Color(.65,.8,.73,.14))
 	view_scale=.65 if menu_mode else .72
 	origin=Vector2(860,278) if menu_mode else Vector2(620,306)
 	var offset: Vector2=camera

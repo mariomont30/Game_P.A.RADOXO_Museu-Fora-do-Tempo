@@ -12,7 +12,7 @@ Uma aventura de exploração e restauração em que a matemática faz o tempo vo
 [![Baixar para Windows](https://img.shields.io/badge/BAIXAR_PARA_WINDOWS-PC_e_Notebook-e9c78b?style=for-the-badge)](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest/download/PARADOXO-Windows.zip)
 
 ![Godot](https://img.shields.io/badge/Godot-4.7.2-478cbf?logo=godotengine&logoColor=white)
-![Versão](https://img.shields.io/badge/Versão-2.18.0-e9c78b)
+![Versão](https://img.shields.io/badge/Versão-2.19.0-e9c78b)
 ![Idioma](https://img.shields.io/badge/Idioma-Português_BR-8adbc1)
 ![Tema](https://img.shields.io/badge/Matemática-Progressão_Aritmética-54617d)
 
@@ -44,6 +44,10 @@ Explore as salas, resolva desafios de Progressão Aritmética e restaure **12 ob
 
 Clique em uma captura para ver os detalhes em tamanho maior.
 
+## Entre no museu
+
+A abertura na Web e no Windows destaca o nome do jogo sobre o cenário do museu, com luz suave, partículas e brilho no botão **Entrar no museu**. Os efeitos respeitam Movimento reduzido. No Windows, a preparação dos desafios e das jornadas começa depois do clique. No celular, o texto cabe na tela sem rolagem e a barra de carregamento fica no topo.
+
 ## Cada ala tem sua própria entrada
 
 As primeiras entradas nas três galerias têm apresentações automáticas de 3,8 segundos, com cenário em destaque, título animado, partículas e um efeito sonoro original. A entrada da Ala 1 apresenta a aventura. Nas alas seguintes, a engrenagem recuperada anuncia a nova descoberta. Ao concluir as 12 obras, uma apresentação conduz ao encerramento.
@@ -66,6 +70,7 @@ Durante a apresentação, os controles ficam bloqueados e o cronômetro fica par
 2. Clique com o botão direito no ZIP e escolha **Extrair tudo**.
 3. Abra a pasta extraída e execute **PARADOXO.exe**.
 4. Mantenha **PARADOXO.pck** na mesma pasta do executável.
+5. Na abertura, clique em **Entrar no museu**. Após o carregamento, escolha sua jornada.
 
 Depois de baixar e extrair, a versão Windows pode ser jogada **sem internet**. O computador precisa oferecer suporte a **OpenGL 3.3**. A versão distribuída não possui assinatura digital.
 
@@ -102,12 +107,12 @@ No celular, jogue **na horizontal**. Toque em **Entrar no museu**, informe seu n
 
 | Modo | Vidas | Tempo | Experiência |
 | --- | :---: | --- | --- |
-| **Normal** | 2 | Sem limite | Explore e resolva no seu ritmo. |
-| **Difícil** | 2 | Cronômetro por questão | Resolva os desafios antes de o tempo terminar. |
+| **Normal** | 3 corações | Sem limite | Explore e resolva no seu ritmo. |
+| **Difícil** | 2 corações | Cronômetro por questão | Resolva os desafios antes de o tempo terminar. |
 
-Erros confirmados custam uma vida. No Difícil, o tempo esgotado também custa uma vida. Dicas não gastam vidas; o caderno mantém o cronômetro ativo no Difícil. Ao acertar, as vidas são recuperadas.
+Cada coração vermelho representa uma vida. Ao perder uma vida, um coração fica apagado. Erros novos e confirmados custam uma vida. No Difícil, o tempo esgotado também custa uma vida. Dicas não gastam vidas, e o caderno mantém o cronômetro ativo no Difícil. **Próxima pergunta mantém os corações e a tentativa extra que restam, sem recuperar nem acumular vidas.**
 
-**GAME OVER:** ao perder as duas vidas pela primeira vez, você tem uma tentativa extra para a restauração atual. Ela começa com duas vidas, outra questão e, no Difícil, tempo renovado. **Se perder as duas vidas novamente, todo o progresso dessa jornada será apagado e o jogo voltará à tela inicial.** Voltar ao menu ou fechar o jogo não renova a tentativa extra. Outras jornadas e configurações são preservadas.
+**GAME OVER:** ao esgotar os corações pela primeira vez em um desafio, você pode usar uma tentativa extra. Ela começa com **três corações no Normal ou dois no Difícil**, outra questão do mesmo conteúdo e, no Difícil, tempo renovado. **Ao acertar uma pergunta, todos os corações voltam e a tentativa extra é renovada para o próximo desafio.** Se esgotar os corações novamente antes de acertar, todo o progresso dessa jornada será apagado e o jogo voltará à tela inicial. Pausar, trocar a pergunta, voltar ao menu ou fechar o jogo não renovam as chances. Outras jornadas e configurações são preservadas.
 
 No final, **Meu aprendizado** mostra um resumo e cards por conteúdo, com acertos sem ajuda, acertos com ajuda, erros, questões puladas e tempo esgotado. O painel permite consultar o Caderno de Tico e adapta as colunas para a tela do celular.
 
@@ -126,7 +131,7 @@ No final, **Meu aprendizado** mostra um resumo e cards por conteúdo, com acerto
 
 Ao pausar a exploração, o personagem caminha até o banco e senta; então o jogo pausa. Ao retomar, ele se levanta. Sentar por escolha própria não pausa a partida. Nos créditos, **Pausar** interrompe somente as letras; no celular, **Retornar aos créditos** continua a leitura.
 
-As jornadas em andamento ficam salvas **no dispositivo e no navegador usados**. Uma jornada encerrada por duas derrotas é removida do salvamento, inclusive na recuperação por backup. O progresso da Web não é sincronizado automaticamente com Windows, outro navegador ou outro celular.
+As jornadas em andamento ficam salvas **no dispositivo e no navegador usados**. Uma jornada encerrada por duas derrotas antes de um novo acerto é removida do salvamento, inclusive na recuperação por backup. O progresso da Web não é sincronizado automaticamente com Windows, outro navegador ou outro celular.
 
 ## Por dentro do projeto
 
