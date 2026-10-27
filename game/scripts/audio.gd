@@ -4,6 +4,8 @@ var players: Array[AudioStreamPlayer]=[]
 var effect: AudioStreamPlayer
 var ui_player: AudioStreamPlayer
 var hover_time: int=0
+var arrival: AudioStreamPlayer
+var transitioning: bool=false
 var footsteps: AudioStreamPlayer
 var active_track: int=-1
 var current_player: int=0
@@ -18,6 +20,7 @@ var paused: bool=false:
 		for player in players: player.stream_paused=value
 		if is_instance_valid(effect): effect.stream_paused=value
 		if is_instance_valid(footsteps): footsteps.stream_paused=value
+		if is_instance_valid(arrival): arrival.stream_paused=value
 		if is_instance_valid(ui_player): ui_player.stream_paused=false
 		if fade and fade.is_valid():
 			if value: fade.pause()
@@ -41,6 +44,7 @@ func _ready() -> void:
 	footsteps=AudioStreamPlayer.new(); add_child(footsteps)
 	ui_player=AudioStreamPlayer.new(); add_child(ui_player)
 	ui_player.stream=load("res://audio/hover.wav")
+	arrival=AudioStreamPlayer.new(); add_child(arrival)
 
 func track(index: int,instant: bool=false) -> void:
 	if not enabled or index==active_track: return
@@ -61,7 +65,7 @@ func track(index: int,instant: bool=false) -> void:
 	if paused: fade.pause()
 
 func target_volume() -> float:
-	return linear_to_db(maxf(.00001,volume*(.08 if final_defeat else .25 if defeat else .48 if subdued else .8)))
+	return linear_to_db(maxf(.00001,volume*(.08 if final_defeat else .25 if defeat else .38 if transitioning else .48 if subdued else .8)))
 
 func _process(delta: float) -> void:
 	warning_cooldown=maxf(0,warning_cooldown-delta)
@@ -70,6 +74,7 @@ func _process(delta: float) -> void:
 	ui_player.volume_db=linear_to_db(maxf(.00001,effects_volume*.35))
 	effect.volume_db=linear_to_db(maxf(.00001,effects_volume))
 	footsteps.volume_db=linear_to_db(maxf(.00001,effects_volume*.35))
+	arrival.volume_db=linear_to_db(maxf(.00001,effects_volume*.72))
 
 func cue(name: String) -> void:
 	if not enabled or paused: return
@@ -94,6 +99,7 @@ func stop_all() -> void:
 	effect.stop(); effect.stream=null
 	footsteps.stop(); footsteps.stream=null
 	ui_player.stop(); ui_player.stream=null
+	arrival.stop(); arrival.stream=null; transitioning=false
 
 func hover() -> void:
 	if not enabled or Time.get_ticks_msec()-hover_time<80: return
@@ -101,3 +107,14 @@ func hover() -> void:
 	ui_player.stream_paused=false
 	ui_player.volume_db=linear_to_db(maxf(.00001,effects_volume*.35))
 	ui_player.play()
+
+func begin_arrival(destination: int,kind: String) -> void:
+	transitioning=true
+	if not enabled:return
+	var cue_name: String="gallery_travel" if kind=="travel" else ["arrival_art","arrival_nature","arrival_inventions","arrival_finale"][clampi(destination,0,3)]
+	arrival.stop();arrival.stream=load("res://audio/"+cue_name+".wav")
+	arrival.volume_db=linear_to_db(maxf(.00001,effects_volume*.72))
+	arrival.play();arrival.stream_paused=paused
+func end_arrival() -> void:
+	transitioning=false
+	if is_instance_valid(arrival):arrival.stop()

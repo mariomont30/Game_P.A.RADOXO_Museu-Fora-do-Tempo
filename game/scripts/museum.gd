@@ -217,7 +217,7 @@ func _draw() -> void:
 	# Floating architectural plinth, shadows, tile seams and real-looking thickness.
 	ellipse(iso(Vector2(4.5,3.5))+Vector2(0,48),520,240,Color(0,0,0,.15))
 	block(Vector2(-.2,-.2),Vector2(9.4,7.4),32,Color("243b48"),-32)
-	var palettes := [[Color("d4c9af"),Color("c8bea8"),Color("507c7a")],[Color("bbc8b1"),Color("a8bba5"),Color("435f54")],[Color("b9c2d1"),Color("abb6c8"),Color("5a6482")]]
+	var palettes := [[Color("d4c9af"),Color("c8bea8"),Color("507c7a")],[Color("decab1"),Color("cbb391"),Color("9a7155")],[Color("b9c2d1"),Color("abb6c8"),Color("5a6482")]]
 	var palette: Array=palettes[room]
 	for x in range(9):
 		for y in range(7):
@@ -226,15 +226,15 @@ func _draw() -> void:
 			if x==0 or y==0 or x==8 or y==6: col=palette[2]
 			poly([iso(p),iso(p+Vector2(.98,0)),iso(p+Vector2(.98,.98)),iso(p+Vector2(0,.98))],col)
 	# Carpet runner and stitched border.
-	var rug: Color=[Color("a65750"),Color("53796c"),Color("635880")][room]
+	var rug: Color=[Color("a65750"),Color("a7754e"),Color("635880")][room]
 	var carpet: Rect2=RUG_BOUNDS.grow(-.02)
 	poly([iso(carpet.position),iso(Vector2(carpet.end.x,carpet.position.y)),iso(carpet.end),iso(Vector2(carpet.position.x,carpet.end.y))],rug)
 	var stitch: Rect2=RUG_BOUNDS.grow(-.10)
 	var corners: Array=[stitch.position,Vector2(stitch.end.x,stitch.position.y),stitch.end,Vector2(stitch.position.x,stitch.end.y)]
 	for i in range(4): line(iso(corners[i]),iso(corners[(i+1)%4]),GOLD,2)
 	# Two tall back walls create the 3D impression without a 3D engine.
-	poly([iso(Vector2.ZERO),iso(Vector2(9,0)),iso(Vector2(9,0),155),iso(Vector2.ZERO,155)],Color("35535b") if room!=2 else Color("444660"))
-	poly([iso(Vector2.ZERO),iso(Vector2(0,7)),iso(Vector2(0,7),155),iso(Vector2.ZERO,155)],Color("28444f") if room!=2 else Color("333b53"))
+	poly([iso(Vector2.ZERO),iso(Vector2(9,0)),iso(Vector2(9,0),155),iso(Vector2.ZERO,155)],[Color("35535b"),Color("72513e"),Color("444660")][room])
+	poly([iso(Vector2.ZERO),iso(Vector2(0,7)),iso(Vector2(0,7),155),iso(Vector2.ZERO,155)],[Color("28444f"),Color("594033"),Color("333b53")][room])
 	line(iso(Vector2.ZERO,155),iso(Vector2(9,0),155),GOLD,5)
 	line(iso(Vector2.ZERO,155),iso(Vector2(0,7),155),GOLD,5)
 	for axis in range(2):
@@ -325,7 +325,7 @@ func bench() -> void:
 		block(Vector2(x-.02,p.y+.04),Vector2(.18,.44),3,GOLD)
 	block(p,Vector2(1.8,.5),4,Color("9f6c4f"),16)
 	for i in range(4): block(p+Vector2(.02,.025+i*.115),Vector2(1.76,.095),2,Color("bb8861"),20)
-	block(p+Vector2(.13,.12),Vector2(1.54,.28),3,[Color("4f807b"),Color("688367"),Color("776c97")][room],22)
+	block(p+Vector2(.13,.12),Vector2(1.54,.28),3,[Color("4f807b"),Color("bd8f59"),Color("776c97")][room],22)
 	for x in [p.x+.08,p.x+1.6]: block(Vector2(x,p.y),Vector2(.10,.10),46,Color("405763"))
 	for h in [31,40]: block(p+Vector2(.04,.015),Vector2(1.72,.09),6,Color("a87654"),h)
 	for x in [p.x+.04,p.x+1.68]:

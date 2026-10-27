@@ -7,6 +7,7 @@ const Audio=preload("res://scripts/audio.gd")
 const Title=preload("res://scripts/title.gd")
 const Character=preload("res://scripts/character_view.gd")
 const MobileLayout=preload("res://scripts/mobile_layout.gd")
+const GalleryTransition=preload("res://scripts/gallery_transition.gd")
 const QuestionDraw=preload("res://scripts/question_draw.gd")
 const SAVE="user://paradoxo_v2.json"
 const ENDED_SAVE="user://paradoxo_ended_journeys.json"
@@ -101,6 +102,10 @@ var question_ready: bool=false
 var learning_scroll: ScrollContainer
 var learning_book: bool=false
 var learning_scroll_position: int=0
+var gallery_transition: Control
+var transition_kind: String=""
+var transition_focus_paused: bool=false
+var transition_orientation_paused: bool=false
 
 func _ready() -> void:
 	DisplayServer.window_set_title("P.A.RADOXO | O Museu Fora do Tempo")
@@ -151,6 +156,7 @@ func reset_refs() -> void:
 	clear_ui()
 
 func menu() -> void:
+	cancel_gallery_transition()
 	learning_book=false
 	art.defeat_amount=0; art.defeat_active=false; art.modulate=Color.WHITE
 	cancel_pause_cycle()
@@ -257,7 +263,7 @@ func start_new_journey() -> void:
 		else: setup_mode_buttons[0].grab_focus()
 		audio.cue("wrong")
 		return
-	create_profile(setup_name.text,setup_mode)
+	create_profile(setup_name.text,setup_mode,true)
 
 func clean_name(value: String,fallback: bool=true) -> String:
 	var out: String=""
@@ -272,15 +278,19 @@ func clean_name(value: String,fallback: bool=true) -> String:
 	if ends.size()>20: out=out.substr(0,ends[19])
 	return "Explorador" if out.is_empty() and fallback else out
 
-func create_profile(player_name: String,mode: String) -> void:
+func create_profile(player_name: String,mode: String,present: bool=false) -> void:
 	learning_scroll_position=0
-	current={"id":str(Time.get_unix_time_from_system())+str(randi()%1000),"name":clean_name(player_name),"gender":gender,"mode":mode,"done":[],"seen":[],"active":{},"lives":2,"rules_version":4,"room":0,"hero":[4.5,5.8],"tutorial":true,"phase":"world","balance":[0,0,0,0],"attempts":0,"correct":0,"hints_used":0,"learning":{},"defeats":0,"last_defeat_timeout":false,"draw_state":{},"last_answer_position":-1}
+	current={"id":str(Time.get_unix_time_from_system())+str(randi()%1000),"name":clean_name(player_name),"gender":gender,"mode":mode,"done":[],"seen":[],"active":{},"lives":2,"rules_version":4,"room":0,"hero":[4.5,5.8],"tutorial":true,"phase":"world","balance":[0,0,0,0],"attempts":0,"correct":0,"hints_used":0,"learning":{},"defeats":0,"last_defeat_timeout":false,"draw_state":{},"last_answer_position":-1,"introduced_galleries":[]}
 	profiles.append(current)
 	art.gender=gender
 	mission=0; room=0
 	question={}; phase="world"
 	audio.track(0)
-	save_game(); world()
+	save_game()
+	if present: begin_gallery_transition(0,"opening")
+	else:
+		current.introduced_galleries=[0]
+		world()
 
 func intro() -> void:
 	screen="intro"; reset_refs()
@@ -288,7 +298,7 @@ func intro() -> void:
 	label_at("PRÓLOGO / O DIA SEM AMANHÃ",Rect2(105,132,630,33),15,TEAL)
 	label_at("O Curador parou o tempo.",Rect2(105,187,620,100),38,GOLD)
 	prose("%s, as obras deste museu começaram a desaparecer. Para protegê-las, o Curador congelou todas as horas.\n\nEu sou Tico. Esqueci quase tudo… menos que cada padrão guarda uma pista. Precisamos restaurar as exposições e recuperar três engrenagens.\n\nTalvez preservar uma história também signifique deixá-la continuar." % current.name,Rect2(105,300,620,320),22)
-	button("Entrar no museu",Rect2(105,650,380,52),world,true)
+	button("Entrar no museu",Rect2(105,650,380,52),func(): begin_gallery_transition(0,"opening"),true)
 
 func tutorial() -> void:
 	screen="tutorial"; tutorial_step=0
@@ -319,7 +329,7 @@ func tutorial_controls() -> void:
 	label_at("UM PEQUENO GUIA DE EXPLORAÇÃO",Rect2(190,120,900,40),16,TEAL)
 	label_at("Caminhe. Observe. Restaure.",Rect2(190,180,890,70),37,GOLD)
 	prose("CAMINHAR · Setas ou clique no chão.\nEXAMINAR · Clique numa obra ou pressione E perto dela.\nO marcador ! mostra a próxima missão. O símbolo ✓ marca uma obra restaurada.\n\nErrar custa uma vida. Se as vidas acabarem, você tem uma tentativa extra. Uma segunda derrota apaga essa jornada.\nDicas e trocas não gastam vidas. No Difícil, trocar mantém o tempo restante.\n\nEsc ou Enter leva ao banco e pausa depois de sentar. Ao retomar, o personagem se levanta antes de liberar os controles. Os botões do menu continuam com som. No Difícil, abrir o caderno mantém o tempo ativo.\n\nSiga o marcador dourado para começar.",Rect2(190,270,880,335),21)
-	button("Explorar a galeria",Rect2(190,631,350,52),func(): current.tutorial=true; current.phase="world"; phase="world"; save_game(); world(),true)
+	button("Explorar a galeria",Rect2(190,631,350,52),func(): current.tutorial=true; current.phase="world"; phase="world"; save_game(); begin_gallery_transition(0,"opening"),true)
 
 func profile_menu() -> void:
 	screen="profiles"; reset_refs()
@@ -385,7 +395,9 @@ func resume_profile() -> void:
 		else: challenge()
 		return
 	if mission==12 and not current.get("tour",false): ending()
-	else: world(true)
+	else:
+		world(true)
+		if room not in current.get("introduced_galleries",[0,1,2]): begin_gallery_transition(room,"opening" if room==0 else "advance")
 
 func world(keep_position: bool=false) -> void:
 	art.defeat_amount=0; art.defeat_active=false; art.modulate=Color.WHITE
@@ -479,9 +491,64 @@ func map_menu() -> void:
 	button("Voltar",Rect2(260,620,190,46),close_overlay,false,overlay)
 
 func enter_gallery(index: int) -> void:
-	close_overlay(); room=index; current.room=room; current.seated=true
-	art.hero=art.BENCH_EXIT; current.hero=[art.hero.x,art.hero.y]
-	world(true)
+	if index<0 or index>2 or current.is_empty():return
+	if index>0 and index*4-1 not in current.done:return
+	var kind: String="travel" if index in current.get("introduced_galleries",[0,1,2]) else "opening" if index==0 else "advance"
+	begin_gallery_transition(index,kind)
+
+func begin_gallery_transition(destination: int,kind: String) -> void:
+	if is_instance_valid(gallery_transition) or current.is_empty():return
+	if destination<0 or destination>3:return
+	if destination==3 and next_mission()!=12:return
+	if destination in [1,2] and destination*4-1 not in current.done:return
+	cancel_pause_cycle();super.close_overlay()
+	transition_kind=kind;transition_focus_paused=false;transition_orientation_paused=false
+	audio.transitioning=true
+	if destination<3:
+		room=destination;current.room=room;current.seated=true
+		art.hero=art.BENCH_EXIT;current.hero=[art.hero.x,art.hero.y]
+		world(true)
+	else:
+		current.phase="world";current.active={};save_game()
+	gallery_transition=GalleryTransition.new()
+	gallery_transition.destination=destination;gallery_transition.kind=kind
+	gallery_transition.reduced=settings.reduced;gallery_transition.large_text=settings.large
+	gallery_transition.mobile=mobile_layout;gallery_transition.character_gender=current.gender
+	gallery_transition.restored=current.done.duplicate()
+	gallery_transition.finished.connect(finish_gallery_transition)
+	ui.visible=false;art.visible=false;art.frozen=true;art.movement=Vector2.ZERO;art.path=[];touch_movement=Vector2.ZERO
+	screen="transition";paused=false;question_ready=false
+	add_child(gallery_transition)
+	audio.paused=false;audio.defeat=false;audio.final_defeat=false;audio.subdued=false
+	audio.volume=float(settings.music)*float(settings.master);audio.effects_volume=float(settings.effects)*float(settings.master)
+	audio.begin_arrival(destination,kind);audio.track(4 if destination==3 else destination+1)
+
+func finish_gallery_transition() -> void:
+	if not is_instance_valid(gallery_transition):return
+	var destination: int=gallery_transition.destination
+	if destination<3:
+		var visited: Array=current.get("introduced_galleries",[0,1,2]).duplicate()
+		if destination not in visited:visited.append(destination)
+		current.introduced_galleries=visited
+	cancel_gallery_transition()
+	if destination==3:ending()
+	else:world(true)
+
+func cancel_gallery_transition() -> void:
+	if is_instance_valid(gallery_transition):
+		gallery_transition.set_process(false);remove_child(gallery_transition);gallery_transition.queue_free();gallery_transition=null
+	if is_instance_valid(art):art.visible=true;art.frozen=false
+	if is_instance_valid(ui):ui.visible=true
+	if is_instance_valid(audio):audio.end_arrival();audio.paused=false
+	transition_kind="";transition_focus_paused=false;transition_orientation_paused=false
+
+func continue_after_restore() -> void:
+	var next: int=next_mission()
+	if next==12:begin_gallery_transition(3,"finale")
+	elif int(next/4)!=room:
+		var target: int=int(next/4)
+		begin_gallery_transition(target,"travel" if target in current.get("introduced_galleries",[0,1,2]) else "advance")
+	else:world(true)
 
 func question_math_key(q: Dictionary) -> String:
 	var t: int=int(q.topic)
@@ -777,11 +844,7 @@ func finish_restore(resuming: bool=false) -> void:
 	if (mission+1)%4==0:
 		msg=["Primeira engrenagem! Tico lembra: o Curador queria proteger as obras.","Segunda engrenagem! Congelar o tempo também impedia novas descobertas.","Terceira engrenagem! O museu pode voltar a receber o amanhã."][int(mission/4)]
 	label_at(msg,Rect2(225,493,800,70),21,TEAL)
-	button("Continuar explorando",Rect2(225,591,350,52),func():
-		var next: int=next_mission()
-		if next==12: ending()
-		elif int(next/4)!=room: room=int(next/4); world()
-		else: world(true),true)
+	button("Continuar explorando",Rect2(225,591,350,52),continue_after_restore,true)
 	button("Ver a obra",Rect2(600,591,260,52),func(): view_restored(mission))
 
 func view_restored(id: int) -> void:
@@ -1008,6 +1071,16 @@ func update_timer() -> void:
 	timer_label.add_theme_color_override("font_color",Color("efb3a4") if time_left<15 and current.mode=="hard" else GOLD)
 
 func _process(delta: float) -> void:
+	if is_instance_valid(gallery_transition):
+		if mobile_layout and OS.has_feature("web"):
+			mobile_orientation_timer+=delta
+			if mobile_orientation_timer>=.3:
+				mobile_orientation_timer=0
+				transition_orientation_paused=bool(JavaScriptBridge.eval("window.paradoxo && window.paradoxo.portrait"))
+		gallery_transition.suspended=transition_focus_paused or transition_orientation_paused
+		audio.paused=gallery_transition.suspended
+		audio.volume=float(settings.music)*float(settings.master);audio.effects_volume=float(settings.effects)*float(settings.master)
+		return
 	process_gameover(delta)
 	if mobile_layout and OS.has_feature("web"):
 		mobile_orientation_timer+=delta
@@ -1102,6 +1175,8 @@ func toggle_pause_key() -> void:
 	else: pause_game()
 
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(gallery_transition):
+		get_viewport().set_input_as_handled();return
 	if is_instance_valid(art) and (event is InputEventMouseMotion or event is InputEventMouseButton): art.pointer=event.position
 	if screen=="credits" and credits_paused:
 		if event is InputEventMouse and is_instance_valid(credit_viewport) and credit_viewport.get_global_rect().has_point(event.position):
@@ -1138,6 +1213,7 @@ func credits_text_height() -> float:
 	return count*credit_roll.get_line_height()+maxi(0,count-1)*credit_roll.get_theme_constant("line_spacing")
 
 func _unhandled_input(event: InputEvent) -> void:
+	if is_instance_valid(gallery_transition):return
 	if not pause_stage.is_empty(): return
 	if screen=="menu" and not paused and event is InputEventMouseButton and event.pressed and event.button_index==MOUSE_BUTTON_LEFT and event.position.x>650:
 		var index: int=art.hit_exhibit(event.position)
@@ -1160,6 +1236,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		art.walk_to(art.ground_point(p))
 
 func _notification(what: int) -> void:
+	if is_instance_valid(gallery_transition):
+		if what==NOTIFICATION_APPLICATION_FOCUS_OUT:transition_focus_paused=true
+		elif what==NOTIFICATION_APPLICATION_FOCUS_IN:transition_focus_paused=false
 	if not is_instance_valid(ui): return
 	if what==NOTIFICATION_APPLICATION_FOCUS_OUT and screen in ["world","challenge","restoring"] and not testing and "--capture" not in OS.get_cmdline_user_args():
 		pause_game()
@@ -1205,6 +1284,12 @@ func valid_profile(p: Variant) -> bool:
 	if not p.get("last_solution","") is String: return false
 	if not p.get("tour",false) is bool: return false
 	if not p.get("seated",false) is bool: return false
+	var introduced: Variant=p.get("introduced_galleries",[0,1,2])
+	if not introduced is Array or introduced.size()>3:return false
+	var unique_galleries: Array=[]
+	for gallery in introduced:
+		if not number_in(gallery,0,2) or gallery in unique_galleries:return false
+		unique_galleries.append(gallery)
 	if not number_in(p.get("rules_version",0),0,4): return false
 	if not number_in(p.get("defeats",0),0,2): return false
 	if not p.get("last_defeat_timeout",false) is bool: return false
@@ -1298,6 +1383,7 @@ func normalize_profile(p: Dictionary) -> Dictionary:
 	var old_max: int=2 if int(p.get("rules_version",0))>=4 else 5 if p.mode=="normal" else 3
 	clean.lives=clampi(2-(old_max-int(p.lives)),0,2); clean.rules_version=4
 	clean.balance=p.get("balance",[0,0,0,0]).map(func(n): return int(n))
+	clean.introduced_galleries=p.get("introduced_galleries",[0,1,2]).map(func(n): return int(n))
 	clean.last_answer_position=int(p.get("last_answer_position",-1))
 	if not p.has("last_answer_position") and not p.active.is_empty():
 		clean.last_answer_position=p.active.question.options.find(p.active.question.answer)

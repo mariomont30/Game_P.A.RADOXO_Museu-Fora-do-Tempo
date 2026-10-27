@@ -12,7 +12,7 @@ Uma aventura de exploração e restauração em que a matemática faz o tempo vo
 [![Baixar para Windows](https://img.shields.io/badge/BAIXAR_PARA_WINDOWS-PC_e_Notebook-e9c78b?style=for-the-badge)](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest/download/PARADOXO-Windows.zip)
 
 ![Godot](https://img.shields.io/badge/Godot-4.7.2-478cbf?logo=godotengine&logoColor=white)
-![Versão](https://img.shields.io/badge/Versão-2.16.0-e9c78b)
+![Versão](https://img.shields.io/badge/Versão-2.17.0-e9c78b)
 ![Idioma](https://img.shields.io/badge/Idioma-Português_BR-8adbc1)
 ![Tema](https://img.shields.io/badge/Matemática-Progressão_Aritmética-54617d)
 
@@ -41,6 +41,18 @@ Explore as salas, resolva desafios de Progressão Aritmética e restaure **12 ob
 <td width="33%"><img src="media/capturas/invencoes.png" alt="Salão das Invenções" width="100%"></td>
 </tr>
 </table>
+
+## Cada ala tem sua própria entrada
+
+As primeiras entradas nas três galerias têm apresentações automáticas de 3,8 segundos, com cenário em destaque, título animado, partículas e um efeito sonoro original. A entrada da Ala 1 apresenta a aventura. Nas alas seguintes, a engrenagem recuperada anuncia a nova descoberta. Ao concluir as 12 obras, uma apresentação conduz ao encerramento.
+
+| Ala | Identidade visual |
+| --- | --- |
+| Galeria de Arte | Verde azulado e dourado |
+| História Natural | Areia, terracota e âmbar |
+| Salão das Invenções | Violeta, com azul luminoso na apresentação |
+
+Durante a apresentação, os controles ficam bloqueados e o cronômetro fica parado. A exploração começa com o personagem sentado no banco. As visitas a galerias já conhecidas pelo mapa têm passagem breve. Com Movimento reduzido, a apresentação usa dissolução suave, sem partículas, rotação ou aproximação de câmera. Não há opção de pular.
 
 ## Baixar e jogar no Windows
 

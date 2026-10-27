@@ -53,6 +53,7 @@ jobs:
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game -- --smoke
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/gameover.gd
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/questions.gd
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/transitions.gd
       - name: Exportar Windows e verificar os pacotes
         run: |
           mkdir -p build/windows
@@ -86,7 +87,7 @@ jobs:
 
           Jogue online: https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/
 
-          Versão 2.16 com 4.200 questões verificadas, 2.100 por modo. O banco equilibra os sinais das respostas, oferece cinco formatos por conteúdo e usa alternativas plausíveis. O sorteio evita repetições na jornada e varia a posição correta sem ciclos fixos. A ordem e o tempo da questão atual são preservados ao retomar, inclusive em jornadas da versão anterior. As regras de GAME OVER e as músicas existentes são mantidas.
+          Versão 2.17 com apresentações automáticas nas três alas e no encerramento, títulos animados, partículas, efeitos sonoros originais e câmera suave. Sem opção de pular. A História Natural usa areia, terracota e âmbar, distinguindo-se da Arte e das Invenções. Movimento reduzido, controles de volume, salvamentos e layouts de computador e celular são respeitados. O banco de 4.200 questões e as regras de GAME OVER são preservados.
           NOTES
           gh release create "$RELEASE_TAG" --target "$GITHUB_SHA" --title "P.A.RADOXO $RELEASE_TAG · O Museu Fora do Tempo" --notes-file "$RUNNER_TEMP/release-notes.md" --draft
           gh release upload "$RELEASE_TAG" dist/PARADOXO-Windows.zip dist/PARADOXO-Projeto.zip dist/SHA256SUMS.txt

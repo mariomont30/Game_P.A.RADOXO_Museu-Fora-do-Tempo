@@ -16,6 +16,7 @@ godot --headless --path game --editor --quit
 godot --headless --path game -- --smoke
 godot --headless --path game --script ../tests/gameover.gd
 godot --headless --path game --script ../tests/questions.gd
+godot --headless --path game --script ../tests/transitions.gd
 ```
 
 O primeiro comando reconstrói as respostas a partir dos dados exibidos nas 4.200 questões e confere também as contas das soluções. Os testes Godot verificam o GAME OVER, 45.000 sorteios e 100.000 posições de alternativas, além de salvamento e migração de jornadas antigas. Testes automáticos não substituem o ensaio visual e a avaliação em aparelhos físicos.
@@ -60,3 +61,9 @@ Esses scripts geram as músicas. Os efeitos curtos existentes continuam em `game
 ## Gerar e auditar o banco
 
 Execute `python game/tools/build_questions.py` para gerar o banco de forma reproduzível. Depois execute `python game/validate_bank.py`, que usa cálculos independentes com frações exatas. O arquivo `questions_legacy_215.json` é somente uma referência canônica para salvamentos antigos e não participa do sorteio. A semente dos testes é fixa para reproduzir falhas. No jogo, o sorteio é aleatório.
+
+## Apresentações das galerias
+
+`gallery_transition.gd` controla uma apresentação independente do cenário jogável. `game.gd` bloqueia a entrada e o cronômetro durante a sequência, preserva o estado e registra as primeiras entradas concluídas em `introduced_galleries`. Salvamentos antigos aceitam o campo ausente e não repetem apresentações antigas. Uma apresentação inicial interrompida pode ser retomada sem perder progresso.
+
+`python game/tools/build_arrivals.py` recria os cinco efeitos originais de passagem. Cada efeito tem um player dedicado, respeita o volume de efeitos e acompanha a suspensão da apresentação. As músicas existentes não são regeneradas por esse comando.

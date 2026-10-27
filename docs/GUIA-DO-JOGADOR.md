@@ -49,3 +49,9 @@ Veja seu aprendizado e as obras restauradas. Nos créditos, Pausar interrompe ap
 São 4.200 questões, com 2.100 em cada modo. O Normal também apresenta respostas negativas e zero. No Difícil, a dificuldade vem das etapas e da interpretação dos dados. Cada conteúdo tem cinco formatos de apresentação.
 
 O jogo guarda as questões vistas na jornada e varia os próximos sorteios. As respostas corretas mudam de posição entre perguntas, sem um ciclo fixo. A ordem da pergunta atual permanece igual ao pausar ou continuar uma jornada. Se você esgotar as questões de um conteúdo, o jogo pede autorização para revisá-lo.
+
+## Entrada e passagem entre galerias
+
+A Ala 1 apresenta a jornada com uma sequência automática de 3,8 segundos. Ao concluir uma galeria, use Continuar explorando para ver a entrada da próxima ala. Cada ambiente tem suas próprias cores, um título e um efeito sonoro de descoberta. Após a última obra, a passagem leva ao encerramento.
+
+Os controles e o cronômetro aguardam o fim da apresentação. Ela termina sozinha, sem opção de pular. O personagem aparece sentado no banco da nova ala. Voltar pelo mapa a uma ala já visitada usa uma passagem de menos de um segundo. A sequência respeita os volumes de Música e Efeitos sonoros. Movimento reduzido mantém a leitura e a dissolução, sem partículas ou movimento de câmera. Perder o foco da janela ou girar o celular para a vertical suspende a apresentação até o retorno.
