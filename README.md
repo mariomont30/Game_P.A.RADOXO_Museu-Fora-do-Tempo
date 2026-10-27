@@ -36,11 +36,13 @@ Explore as salas, resolva desafios de Progressão Aritmética e restaure **12 ob
 
 <table>
 <tr>
-<td width="33%"><img src="media/capturas/galeria-arte.png" alt="Galeria de Arte" width="100%"></td>
-<td width="33%"><img src="media/capturas/historia-natural.png" alt="História Natural" width="100%"></td>
-<td width="33%"><img src="media/capturas/invencoes.png" alt="Salão das Invenções" width="100%"></td>
+<td width="33%" align="center"><a href="media/capturas/galeria-arte.png"><img src="media/capturas/galeria-arte.png" alt="Galeria de Arte" width="100%"></a><br><strong>Galeria de Arte</strong></td>
+<td width="33%" align="center"><a href="media/capturas/historia-natural.png"><img src="media/capturas/historia-natural.png" alt="História Natural" width="100%"></a><br><strong>História Natural</strong></td>
+<td width="33%" align="center"><a href="media/capturas/invencoes.png"><img src="media/capturas/invencoes.png" alt="Salão das Invenções" width="100%"></a><br><strong>Salão das Invenções</strong></td>
 </tr>
 </table>
+
+Clique em uma captura para ver os detalhes em tamanho maior.
 
 ## Cada ala tem sua própria entrada
 

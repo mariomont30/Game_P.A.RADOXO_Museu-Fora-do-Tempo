@@ -1,4 +1,6 @@
-P.A.RADOXO 2.18 | O Museu Fora do Tempo
+GUIA RÁPIDO | P.A.RADOXO 2.18 | O Museu Fora do Tempo
+
+Resumo de acesso e informações essenciais para começar a jogar.
 
 Jogue: https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/
 Windows: baixe a Release, extraia tudo e abra PARADOXO.exe ao lado de PARADOXO.pck.
@@ -11,4 +13,5 @@ No Difícil, a tentativa extra tem um novo cronômetro, iniciado com a questão 
 
 Pausa com a galeria ao fundo. Meu aprendizado mostra um resumo e cards por conteúdo.
 No celular, jogue na horizontal e use os controles por toque.
-Consulte README.md e docs/GUIA-DO-JOGADOR.md.
+Para conhecer o projeto, consulte README.md na raiz do repositório.
+Para instruções completas, consulte GUIA-DO-JOGADOR.md nesta pasta docs/.
