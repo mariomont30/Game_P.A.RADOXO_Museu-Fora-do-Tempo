@@ -12,7 +12,7 @@ Uma aventura de exploração e restauração em que a matemática faz o tempo vo
 [![Baixar para Windows](https://img.shields.io/badge/BAIXAR_PARA_WINDOWS-PC_e_Notebook-e9c78b?style=for-the-badge)](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest/download/PARADOXO-Windows.zip)
 
 ![Godot](https://img.shields.io/badge/Godot-4.7.2-478cbf?logo=godotengine&logoColor=white)
-![Versão](https://img.shields.io/badge/Versão-2.19.0-e9c78b)
+![Versão](https://img.shields.io/badge/Versão-2.19.1-e9c78b)
 ![Idioma](https://img.shields.io/badge/Idioma-Português_BR-8adbc1)
 ![Tema](https://img.shields.io/badge/Matemática-Progressão_Aritmética-54617d)
 
@@ -43,6 +43,8 @@ Explore as salas, resolva desafios de Progressão Aritmética e restaure **12 ob
 </table>
 
 Clique em uma captura para ver os detalhes em tamanho maior.
+
+O retorno ao menu restaura o cenário à direita, inclusive depois da pausa e do GAME OVER. No Difícil, avisos sonoros indicam os 10 segundos restantes e a contagem final de 5 a 1, respeitando a pausa e o volume dos efeitos.
 
 ## Entre no museu
 
@@ -108,7 +110,7 @@ No celular, jogue **na horizontal**. Toque em **Entrar no museu**, informe seu n
 | Modo | Vidas | Tempo | Experiência |
 | --- | :---: | --- | --- |
 | **Normal** | 3 corações | Sem limite | Explore e resolva no seu ritmo. |
-| **Difícil** | 2 corações | Cronômetro por questão | Resolva os desafios antes de o tempo terminar. |
+| **Difícil** | 2 corações | 1min a 1min30s por questão | Resolva os desafios antes de o tempo terminar. |
 
 Cada coração vermelho representa uma vida. Ao perder uma vida, um coração fica apagado. Erros novos e confirmados custam uma vida. No Difícil, o tempo esgotado também custa uma vida. Dicas não gastam vidas, e o caderno mantém o cronômetro ativo no Difícil. **Próxima pergunta mantém os corações e a tentativa extra que restam, sem recuperar nem acumular vidas.**
 

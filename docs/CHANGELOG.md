@@ -1,5 +1,14 @@
 # Novidades do P.A.RADOXO
 
+## 2.19.1
+
+- Cronômetro do Difícil ajustado para 60, 75 ou 90 segundos por conteúdo, com troca de pergunta preservando o tempo restante.
+
+- Aviso sonoro aos 10 segundos e pulsos em 5, 4, 3, 2 e 1 no Difícil. Volume respeitado e sons interrompidos na pausa ou ao sair da questão.
+
+- Retorno ao menu restaura o enquadramento do cenário após pausa e GAME OVER, evitando sobreposição sobre o título e os botões.
+- Correção compartilhada pelos dois modos, pelos dois personagens e pelas três galerias, nos layouts de computador e celular.
+
 ## 2.19
 
 - Nova abertura na Web e no Windows, com nome do jogo em destaque, cenário do museu e efeitos que respeitam Movimento reduzido.

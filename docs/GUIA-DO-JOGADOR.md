@@ -69,3 +69,7 @@ Os controles e o cronômetro aguardam o fim da apresentação. Ela termina sozin
 ### Abertura e carregamento
 
 Na Web e no Windows, use **Entrar no museu** para chegar ao menu principal. No Windows, as etapas de preparação aparecem após o clique. Fechar a abertura não apaga suas jornadas. No celular, a apresentação cabe na altura disponível sem rolagem e a barra de carregamento fica no topo. A opção Movimento reduzido suaviza os efeitos da abertura.
+
+### Avisos do cronômetro
+
+No Difícil, as questões atuais duram de 60 a 90 segundos, conforme o conteúdo. Um aviso toca aos 10 segundos restantes. Nos últimos cinco segundos, sinais curtos acompanham 5, 4, 3, 2 e 1. Ao zerar, vale o som e a regra de tempo esgotado. Os alertas respeitam o volume dos efeitos e param na pausa ou ao sair da pergunta. Trocar a pergunta mantém o tempo restante. O modo Normal continua sem limite de tempo.

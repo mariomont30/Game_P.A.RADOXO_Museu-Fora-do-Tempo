@@ -57,6 +57,8 @@ jobs:
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/questions.gd
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/transitions.gd
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/interface.gd
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/menu_return.gd
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/countdown.gd
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/functional_regression.gd
       - name: Exportar Windows e verificar os pacotes
         run: |
@@ -87,7 +89,7 @@ jobs:
 
           Jogue online: https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/
 
-          Dois personagens, três galerias e 4.200 questões. Cada coração é uma vida: três no Normal e dois no Difícil. Acertar recupera os corações e renova a tentativa extra. Próxima pergunta mantém as chances restantes, sem acumular vidas. Uma segunda derrota antes de acertar encerra a jornada. Nova abertura com título animado, cenário do museu e botão Entrar no museu também no Windows. Interface para computador e celular na horizontal. Consulte o README e docs/CHANGELOG.md.
+          Dois personagens, três galerias e 4.200 questões. Cada coração é uma vida: três no Normal e dois no Difícil. Acertar recupera os corações e renova a tentativa extra. Próxima pergunta mantém as chances restantes, sem acumular vidas. Uma segunda derrota antes de acertar encerra a jornada. Nova abertura com título animado, cenário do museu e botão Entrar no museu também no Windows. Retorno ao menu com enquadramento corrigido após pausa e GAME OVER. No Difícil, 60 a 90 segundos por questão e avisos sonoros aos 10 segundos e de 5 a 1. Interface para computador e celular na horizontal. Consulte o README e docs/CHANGELOG.md.
           NOTES
           if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
             gh release edit "$RELEASE_TAG" --notes-file "$RUNNER_TEMP/release-notes.md"

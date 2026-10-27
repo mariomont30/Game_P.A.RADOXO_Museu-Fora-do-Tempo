@@ -23,3 +23,5 @@ Para instruções completas, consulte GUIA-DO-JOGADOR.md nesta pasta docs/.
 
 ABERTURA
 No Windows e na Web, clique em Entrar no museu e aguarde a preparação antes de escolher sua jornada. No celular, a barra de carregamento fica no topo.
+
+No Difícil, cada questão tem 60, 75 ou 90 segundos. Avisos sonoros tocam aos 10 segundos e na contagem final de 5 a 1, respeitando o volume dos efeitos e a pausa.

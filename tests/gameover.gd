@@ -48,7 +48,7 @@ func run() -> void:
       g.retry_gameover()
       check(g.screen=="challenge" and g.current.lives==limit and g.current.defeats==1,"One retry resets only lives")
       check(g.question.id!=original and int(g.question.topic)==g.TOPICS[g.mission],"New question same content")
-      check(g.time_left==float(g.question.time),"Retry restores time")
+      check(g.time_left==g.question_time_limit(g.question),"Retry restores the current content time limit")
       old_time=g.time_left;g._process(.2);check(g.time_left==old_time,"Clock waits for question layout")
       await process_frame;g._process(.2)
       check(absf(g.time_left-(old_time-.2 if mode=="hard" else old_time))<.001,"Ready clock respects mode")

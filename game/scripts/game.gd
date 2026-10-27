@@ -231,6 +231,7 @@ func _apply_mobile_layout() -> void:
 	mobile_applying=false
 
 func reset_refs() -> void:
+	if is_instance_valid(audio): audio.stop_countdown()
 	gameover_primary=null; gameover_card=null; gameover_shade=null
 	credit_scenes.clear()
 	credits_paused=false; credit_button=null; credit_hint=null; credit_viewport=null; credit_resume_button=null
@@ -245,6 +246,9 @@ func menu() -> void:
 	art.defeat_amount=0; art.defeat_active=false; art.modulate=Color.WHITE
 	cancel_pause_cycle()
 	close_overlay()
+	# The menu owns its framing; discard the frame left by pause or defeat.
+	art.presentation_rect=Rect2(); art.camera=Vector2.ZERO
+	art.queue_redraw()
 	audio.defeat=false; audio.final_defeat=false
 	audio.track(0)
 	screen="menu"; art.show_pair=true; art.menu_mode=true; art.preview=false; art.room=0; art.hero=Vector2(4.8,5); art.movement=Vector2.ZERO; art.path=[]
@@ -665,6 +669,11 @@ func question_math_key(q: Dictionary) -> String:
 	var n: int=0 if t in [0,2] else 5 if t==1 and not q.has("revision") else int(q.n)
 	return "%s:%d:%d:%d:%d" % [q.mode,t,int(q.a),int(q.r),n]
 
+func question_time_limit(item: Dictionary) -> float:
+	# Keep the saved question intact while applying the current clock policy.
+	if item.mode=="hard": return [60.0,60.0,60.0,75.0,75.0,90.0,90.0][clampi(int(item.topic),0,6)]
+	return float(item.time)
+
 func start_question() -> void:
 	if mission>=12: return
 	var seen_math: Dictionary={}
@@ -699,7 +708,7 @@ func start_question() -> void:
 	balance[target]=int(balance[target])+1; current.balance=balance
 	current.seen.append(question.id)
 	bad_answers=[]; hints=0; consulted_book=false; selected_answer=""; sequence_slots=["",""]; slot_index=0
-	time_left=float(question.time)
+	time_left=question_time_limit(question)
 	answered=false; phase="question"
 	current.phase=phase
 	current.active={"question":question.duplicate(true),"mission":mission,"remaining":time_left,"bad":[],"hints":0,"slots":sequence_slots.duplicate(),"selected":"","slot_index":0}
@@ -1004,6 +1013,7 @@ func pause_game() -> void:
 	if screen=="credits": toggle_credits_pause(); return
 	if screen not in ["world","challenge","restoring","credits","ending","success","timeout"]: return
 	if not pause_stage.is_empty(): return
+	audio.stop_countdown()
 	if banked_pause: show_pause_menu(); return
 	super.close_overlay()
 	pause_layout={"menu":art.menu_mode,"pair":art.show_pair,"frame":art.presentation_rect}
@@ -1272,8 +1282,9 @@ func _process(delta: float) -> void:
 		if person>=0 and person!=menu_character_hovered: art.greetings[person]=1.2; audio.hover()
 		menu_character_hovered=person
 	if screen=="challenge" and not paused and not answered and question_ready and current.mode=="hard":
+		var previous_time: float=time_left
 		time_left=maxf(0,time_left-delta); update_timer()
-		if time_left<15: audio.warn()
+		audio.countdown(previous_time,time_left)
 		if time_left<=0:
 			close_overlay(); lose_charge(true)
 	if screen=="restoring" and not paused:
@@ -1526,6 +1537,8 @@ func normalize_profile(p: Dictionary) -> Dictionary:
 	# Preserve damage without reviving an exhausted attempt or ending a live legacy save.
 	clean.lives=clampi(limit-(old_max-int(p.lives)),1,limit) if int(p.lives)>0 else 0
 	clean.rules_version=5
+	if clean.mode=="hard" and not clean.active.is_empty():
+		clean.active.remaining=minf(float(clean.active.remaining),question_time_limit(clean.active.question))
 	clean.balance=p.get("balance",[0,0,0,0]).map(func(n): return int(n))
 	clean.introduced_galleries=p.get("introduced_galleries",[0,1,2]).map(func(n): return int(n))
 	clean.last_answer_position=int(p.get("last_answer_position",-1))

@@ -112,3 +112,9 @@ O campo `rules_version` vale 5. A migração mantém a perda relativa de vidas d
 `tests/native_entry.gd` verifica a entrada nativa, as etapas reais de carregamento, a preferência de movimento e a preservação do salvamento ao fechar antes da preparação. Execute `godot --headless --path game --script ../tests/native_entry.gd`; acrescente `-- --visual` para capturas. O Windows exportado inicia na entrada. O editor e os testes carregam diretamente para facilitar o desenvolvimento.
 
 O fundo da entrada Web está em `media/abertura/museu.png`, renderizado pelo próprio cenário. O construtor Web copia a imagem para `web/welcome-museum.png`. A preferência de movimento reduzido da Web é espelhada como um booleano em localStorage para a abertura, sem dados da jornada. A barra usa o topo apenas em dispositivos de toque.
+
+`tests/menu_return.gd` verifica os retornos pela pausa da exploração, pela pausa da pergunta e pelas duas derrotas. Cobre os dois layouts, modos e personagens, as três alas e texto ampliado. Execute `godot --headless --path game --script ../tests/menu_return.gd`. Para capturas, remova `--headless` e acrescente `-- --visual`.
+
+`tests/countdown.gd` verifica os avisos do cronômetro, sem repetições por quadro, com pausa/retomada, troca de pergunta, volume e quadros atrasados. Executar `godot --headless --path game --script ../tests/countdown.gd`. Os pulsos usam o efeito original `tick.wav`, em canal próprio, sem substituir os demais sons.
+
+O limite efetivo do Difícil é definido por `question_time_limit`: 60 s nos conteúdos 0–2, 75 s em 3–4 e 90 s em 5–6. A questão salva e a metadata original do banco permanecem intactas para continuar validando os salvamentos anteriores. O tempo restante é limitado ao novo máximo ao retomar, preservando alternativas, vidas e tentativas.
