@@ -93,8 +93,8 @@ body {
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
 <link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
 <meta name="description" content="Restaure um museu fora do tempo com progressões aritméticas.">
-	<meta name="application-version" content="2.17.0">
-<link rel="stylesheet" href="mobile.css">
+	<meta name="application-version" content="2.18.0">
+<link rel="stylesheet" href="mobile.css?v=2.18.0">
 </head>
 	<body>
 		<section id="welcome" aria-labelledby="welcomeTitle"><div><p class="eyebrow">UMA AVENTURA DE RESTAURAÇÃO</p><h1 id="welcomeTitle">P.A.RADOXO</h1><h2>O Museu Fora do Tempo</h2><p>Restaure 12 obras, descubra padrões e devolva vida às histórias.</p><button id="enterMuseum">Entrar no museu</button><p class="small">No celular, jogue na horizontal. Toque para caminhar e use os botões da tela. Suas jornadas ficam salvas neste navegador.</p></div></section><section id="rotate" role="status"><div><div class="phoneIcon" aria-hidden="true">↻</div><h2>Gire o celular</h2><p>O museu foi preparado para jogar na horizontal.</p><p class="small">Se necessário, habilite a rotação automática do aparelho.</p></div></section><dialog id="nameDialog"><form id="nameForm"><h2>Como podemos chamar você?</h2><label for="mobileName">Seu nome ou apelido</label><input id="mobileName" type="text" autocomplete="off" autocapitalize="words" enterkeyhint="done"><p class="small">Até 20 caracteres. Acentos e emojis são aceitos.</p><div class="actions"><button id="cancelName" type="button">Voltar</button><button type="submit">Usar este nome</button></div></form></dialog><canvas id="canvas">
@@ -105,10 +105,10 @@ body {
 			Ative JavaScript para jogar.
 		</noscript>
 
-		<div id="status"><div style="font:24px Georgia,serif;color:#e9c78b;letter-spacing:3px">P.A.RADOXO</div><p style="font:16px Arial;color:#b4c6ce">Preparando o museu…</p>
+		<div id="status"><div style="font:24px Georgia,serif;color:#e9c78b;letter-spacing:3px">P.A.RADOXO</div><p id="status-subtitle" style="font:16px Arial;color:#b4c6ce">Preparando o museu…</p>
 			<img id="status-splash" class="show-image--false fullsize--true use-filter--true" src="index.png" alt="">
 			<progress id="status-progress"></progress>
-			<div id="status-notice"></div>
+			<div id="status-notice" role="alert" aria-live="assertive"></div><div id="status-recovery" hidden><button id="retryLoad" type="button">Tentar novamente</button><p class="small">Tentar novamente recarrega a página sem apagar as jornadas salvas.</p></div>
 		</div>
 
 		<script>
@@ -116,13 +116,74 @@ const paradoxoFetch=window.fetch.bind(window);
 window.fetch=function(input,options){
  const resource=new URL(typeof input==='string'?input:input.url,location.href);
  if(resource.origin===location.origin&&resource.pathname.endsWith('/index.pck')){
-  resource.searchParams.set('v','2.17.0');
+  resource.searchParams.set('v','2.18.0');
   return paradoxoFetch(resource.href,options);
  }
  return paradoxoFetch(input,options);
 };
 </script>
-<script src="mobile.js"></script>
+<script>(() => {
+  const status = document.getElementById('status');
+  const notice = document.getElementById('status-notice');
+  const recovery = document.getElementById('status-recovery');
+  const retry = document.getElementById('retryLoad');
+  let failed = false;
+  window.paradoxoLoadFailure = (error) => {
+    if (window.paradoxo?.ready || failed) return;
+    failed = true;
+    console.error(error);
+    const detail = String(error?.message ?? error ?? '');
+    const unsupported = /features required|missing|WebGL|WebAssembly|DecompressionStream/i.test(detail);
+    const message = unsupported
+      ? 'Este navegador não oferece os recursos necessários para abrir o museu. Use um navegador atualizado e tente novamente.'
+      : 'Não foi possível carregar o museu. Verifique sua conexão e tente novamente.';
+    if (window.paradoxo) window.paradoxo.loadingFailed = true;
+    document.body.classList.add('load-failed');
+    document.getElementById('welcome').style.display = 'none';
+    document.getElementById('enterMuseum').disabled = true;
+    status.classList.add('is-failed');
+    status.style.visibility = 'visible';
+    document.getElementById('status-progress').style.display = 'none';
+    const subtitle = document.getElementById('status-subtitle');
+    if (subtitle) subtitle.hidden = true;
+    notice.textContent = message;
+    notice.style.display = 'block';
+    recovery.hidden = false;
+    retry.disabled = false;
+    retry.focus({ preventScroll: true });
+  };
+  // Some engine initialization failures do not reject startGame promptly.
+  // Observe startup resource fetches directly, including compressed WASM.
+  const startupFetch = window.fetch.bind(window);
+  window.fetch = async (input, options) => {
+    const url = new URL(typeof input === 'string' ? input : input.url, location.href);
+    const startupResource = url.origin === location.origin && /\/index\.(pck|wasm)(\.gz)?$/.test(url.pathname);
+    try {
+      const response = await startupFetch(input, options);
+      if (startupResource && !response.ok) throw new Error('Startup download failed: ' + response.status);
+      return response;
+    } catch (error) {
+      if (startupResource) window.paradoxoLoadFailure(error);
+      throw error;
+    }
+  };
+  retry.addEventListener('click', () => {
+    if (!failed || retry.disabled) return;
+    retry.disabled = true;
+    retry.textContent = 'Reabrindo o museu…';
+    // Reload creates a fresh engine. IndexedDB and saved journeys are untouched.
+    window.location.reload();
+  });
+  window.addEventListener('error', (event) => {
+    if (!(event.target instanceof HTMLScriptElement) || !event.target.src) return;
+    const path = new URL(event.target.src, location.href).pathname;
+    if (path.endsWith('/index.js') || path.endsWith('/mobile.js')) {
+      window.paradoxoLoadFailure(new Error('Startup script unavailable'));
+    }
+  }, true);
+})();
+</script>
+<script src="mobile.js?v=2.18.0"></script>
 <script>
 const originalFetch=window.fetch.bind(window);
 window.fetch=async function(input,options){
@@ -142,9 +203,9 @@ window.fetch=async function(input,options){
 </script>
 <script src="index.js"></script>
 		<script>
-const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":13146388,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":true,"fileSizes":{"index.pck":13147396,"index.wasm":39514754},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
 const GODOT_THREADS_ENABLED = false;
-const engine = new Engine(GODOT_CONFIG);
+const engine = typeof Engine === "function" ? new Engine(GODOT_CONFIG) : null;
 
 (function () {
 	const statusOverlay = document.getElementById('status');
@@ -181,16 +242,13 @@ const engine = new Engine(GODOT_CONFIG);
 	}
 
 	function displayFailureNotice(err) {
-		console.error(err);
-		if (err instanceof Error) {
-			setStatusNotice(err.message);
-		} else if (typeof err === 'string') {
-			setStatusNotice(err);
-		} else {
-			setStatusNotice('An unknown error occurred.');
-		}
-		setStatusMode('notice');
 		initializing = false;
+		window.paradoxoLoadFailure(err);
+	}
+
+	if (!engine || !window.paradoxo) {
+		displayFailureNotice(new Error('Startup script unavailable'));
+		return;
 	}
 
 	const missing = Engine.getMissingFeatures({

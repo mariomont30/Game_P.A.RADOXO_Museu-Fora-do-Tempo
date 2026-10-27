@@ -34,7 +34,7 @@ def package() -> None:
     source = []
     for folder in ('game', 'docs', 'licenses', 'media', 'tools', 'tests'):
         for p in (ROOT / folder).rglob('*'):
-            if p.is_file() and not any(part in ('.godot', 'Godot', '__pycache__') for part in p.relative_to(ROOT).parts):
+            if p.is_file() and not any(part in ('.godot', 'Godot', '__pycache__', 'node_modules', 'test-results') for part in p.relative_to(ROOT).parts):
                 source.append((p, Path('PARADOXO-Projeto') / p.relative_to(ROOT)))
     for name in ('README.md', '.gitignore', '.gitattributes'):
         source.append((ROOT / name, Path('PARADOXO-Projeto') / name))

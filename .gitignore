@@ -20,3 +20,7 @@ Thumbs.db
 __pycache__/
 *.pyc
 export_credentials.cfg
+
+# Testes opcionais de navegador.
+node_modules/
+/test-results/

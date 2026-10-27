@@ -8,6 +8,8 @@ No [navegador](https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo
 
 Escolha Começar uma jornada, informe um nome ou apelido e selecione explicitamente personagem e modo. Esses três campos são obrigatórios. Para voltar a uma jornada salva, use Continuar.
 
+Se a versão Web não conseguir baixar o jogo, aparecerá uma mensagem em português e o botão **Tentar novamente**. Confira a conexão e toque nele para recarregar a página. Essa ação preserva os dados salvos no navegador.
+
 ## Explore, observe, restaure
 
 Cada uma das três alas possui quatro obras. Siga o marcador dourado para encontrar a próxima restauração. Clique ou toque numa obra para aproximar-se e use Examinar para abrir o desafio. Escolha uma resposta e confirme. Use Dica ou o Caderno de Tico quando precisar.
@@ -40,9 +42,11 @@ No encerramento bem-sucedido, o botão Meu aprendizado apresenta obras restaurad
 
 O salvamento é local. Use o mesmo navegador e endereço para continuar a versão Web, ou o mesmo usuário do Windows na versão para computador. Limpar os dados do navegador pode apagar as jornadas. Não há conta online nem sincronização entre dispositivos.
 
+Nomes longos aparecem abreviados na lista de jornadas para manter modo, progresso e Excluir visíveis. O nome completo continua salvo e aparece ao manter o ponteiro sobre a jornada no computador.
+
 ## Final e créditos
 
-Veja seu aprendizado e as obras restauradas. Nos créditos, Pausar interrompe apenas as letras; música e cenários continuam. Esc ou Enter pausam e retomam. No celular, há também Retornar aos créditos enquanto as letras estão paradas. Sair para o menu principal encerra a leitura. Com movimento reduzido, a rolagem é manual.
+Veja seu aprendizado e as obras restauradas. Nos créditos, Pausar interrompe apenas as letras; música e cenários continuam. Esc ou Enter pausam e retomam. No celular, há também Retornar aos créditos enquanto as letras estão paradas. Com um teclado conectado, as setas alternam entre os botões e Espaço ativa a opção. Sair para o menu principal encerra a leitura. Com movimento reduzido, a rolagem é manual.
 
 ## Perguntas e alternativas
 

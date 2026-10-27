@@ -164,7 +164,10 @@ static func profiles(g) -> void:
 		elif c is Label: rect(c,Rect2(42,25 if c.text=="Suas jornadas" else 140,875,60)); font(c,30 if c.text=="Suas jornadas" else 22,g)
 		elif c is ScrollContainer:
 			rect(c,Rect2(42,105,875,330))
-			for b in buttons(c): b.custom_minimum_size=Vector2(640 if b.text!="Excluir" else 160,64); font(b,21,g)
+			for b in buttons(c):
+				b.custom_minimum_size=Vector2(0 if b.has_meta("journey_name") else 160,64)
+				font(b,21,g)
+				if b.has_meta("journey_name"): g.fit_profile_caption(b)
 	move_button(g.ui,"Voltar",Rect2(42,454,230,64))
 
 static func ending(g) -> void:
@@ -234,7 +237,7 @@ static func overlay(g) -> void:
 		for c in root.get_children():
 			if c is Panel: rect(c,Rect2(484,12,464,516))
 		for i in range(labels.size()):
-			rect(labels[i],Rect2(508,32 if i==0 else 440,416,68))
+			rect(labels[i],Rect2(508,32 if i==0 else 440,416,68 if i==0 else 76))
 			font(labels[i],26 if i==0 else 17,g)
 		move_button(root,"Retomar",Rect2(508,116,416,64))
 		move_button(root,"Configurações",Rect2(508,198,200,64))

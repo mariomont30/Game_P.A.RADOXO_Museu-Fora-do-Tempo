@@ -336,20 +336,46 @@ func profile_menu() -> void:
 	panel(Rect2(140,70,1000,660))
 	label_at("Suas jornadas",Rect2(180,105,900,65),38,GOLD)
 	if profiles.is_empty(): label_at("Nenhuma jornada salva. Comece uma nova aventura pelo menu.",Rect2(180,215,860,90),24,MUTED)
-	var scroll:=ScrollContainer.new(); place(scroll,Rect2(180,200,915,410))
+	var scroll:=ScrollContainer.new(); scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED; place(scroll,Rect2(180,200,915,410))
 	var list:=VBoxContainer.new(); list.add_theme_constant_override("separation",14); padded_scroll_content(scroll,list)
 	var first_journey: Button=null
 	for profile in profiles:
 		var p: Dictionary=profile
 		var row:=HBoxContainer.new(); row.add_theme_constant_override("separation",16); list.add_child(row)
 		var b:=button("%s · %s · %d/12 obras" % [p.name,"Normal" if p.mode=="normal" else "Difícil",p.done.size()],Rect2(0,0,680,58),func(): current=p; resume_profile(),false,row)
-		b.custom_minimum_size=Vector2(680,58)
+		b.custom_minimum_size=Vector2(0,58)
+		b.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+		b.clip_text=true; b.text_overrun_behavior=TextServer.OVERRUN_TRIM_ELLIPSIS
+		b.set_meta("journey_name",str(p.name))
+		b.set_meta("journey_details"," · %s · %d/12 obras" % ["Normal" if p.mode=="normal" else "Difícil",p.done.size()])
+		b.tooltip_text=str(p.name)+str(b.get_meta("journey_details"))
+		b.resized.connect(func(): fit_profile_caption(b))
+		b.theme_changed.connect(func(): fit_profile_caption.call_deferred(b))
+		fit_profile_caption(b)
 		if first_journey==null: first_journey=b
 		var remove_button:=button("Excluir",Rect2(0,0,170,58),func(): confirm_delete(str(p.id)),false,row)
 		remove_button.custom_minimum_size=Vector2(170,58)
 	var back:=button("Voltar",Rect2(180,650,180,48),menu)
 	if first_journey: first_journey.grab_focus()
 	else: back.grab_focus()
+
+func fit_profile_caption(b: Button) -> void:
+	if not is_instance_valid(b) or not b.has_meta("journey_name"): return
+	var font: Font=b.get_theme_font("font")
+	var n: int=b.get_theme_font_size("font_size")
+	var skin: StyleBox=b.get_theme_stylebox("normal")
+	var available: float=maxf(0,b.size.x-skin.get_content_margin(SIDE_LEFT)-skin.get_content_margin(SIDE_RIGHT)-8)
+	var full_name: String=str(b.get_meta("journey_name"))
+	var details: String=str(b.get_meta("journey_details"))
+	var prefix: String=full_name
+	if font.get_string_size(prefix+details,HORIZONTAL_ALIGNMENT_LEFT,-1,n).x>available:
+		var ends: PackedInt32Array=TextServerManager.get_primary_interface().string_get_character_breaks(full_name)
+		var count: int=ends.size()
+		while count>0:
+			count-=1
+			prefix=(full_name.substr(0,ends[count-1]) if count>0 else "")+"…"
+			if font.get_string_size(prefix+details,HORIZONTAL_ALIGNMENT_LEFT,-1,n).x<=available: break
+	b.text=prefix+details
 
 func next_mission() -> int:
 	for i in range(12):
@@ -915,7 +941,7 @@ func show_pause_menu() -> void:
 	button("Trocar pergunta",Rect2(727,409,486,51),restart_confirm,false,overlay).disabled=screen!="challenge"
 	button("Voltar ao menu",Rect2(727,474,486,51),func():
 		info("Voltar ao menu?","Sua questão, alternativas, vidas e tempo restante serão preservados.",func(): update_snapshot(); save_game(); menu(),"Salvar e voltar"),false,overlay)
-	label_at("Questão encoberta. Cronômetro e museu pausados.\nSua jornada está salva neste dispositivo.",Rect2(727,586,486,100),18,MUTED,overlay).horizontal_alignment=HORIZONTAL_ALIGNMENT_LEFT
+	label_at("Jogo e cronômetro pausados.\nProgresso salvo neste dispositivo.",Rect2(727,586,486,100),18,MUTED,overlay).horizontal_alignment=HORIZONTAL_ALIGNMENT_LEFT
 
 
 func resume_from_bench() -> void:
@@ -1181,7 +1207,7 @@ func _input(event: InputEvent) -> void:
 	if screen=="credits" and credits_paused:
 		if event is InputEventMouse and is_instance_valid(credit_viewport) and credit_viewport.get_global_rect().has_point(event.position):
 			get_viewport().set_input_as_handled(); return
-		if event is InputEventKey and event.keycode in [KEY_LEFT,KEY_RIGHT,KEY_UP,KEY_DOWN,KEY_PAGEUP,KEY_PAGEDOWN,KEY_HOME,KEY_END]:
+		if event is InputEventKey and event.keycode in [KEY_PAGEUP,KEY_PAGEDOWN,KEY_HOME,KEY_END]:
 			get_viewport().set_input_as_handled(); return
 	if not pause_stage.is_empty():
 		if event is InputEventKey or event is InputEventMouseButton: get_viewport().set_input_as_handled()

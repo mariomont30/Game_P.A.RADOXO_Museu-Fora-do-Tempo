@@ -12,13 +12,17 @@ Uma aventura de exploração e restauração em que a matemática faz o tempo vo
 [![Baixar para Windows](https://img.shields.io/badge/BAIXAR_PARA_WINDOWS-PC_e_Notebook-e9c78b?style=for-the-badge)](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest/download/PARADOXO-Windows.zip)
 
 ![Godot](https://img.shields.io/badge/Godot-4.7.2-478cbf?logo=godotengine&logoColor=white)
-![Versão](https://img.shields.io/badge/Versão-2.17.0-e9c78b)
+![Versão](https://img.shields.io/badge/Versão-2.18.0-e9c78b)
 ![Idioma](https://img.shields.io/badge/Idioma-Português_BR-8adbc1)
 ![Tema](https://img.shields.io/badge/Matemática-Progressão_Aritmética-54617d)
 
 [Conheça o jogo](#um-museu-que-precisa-de-você) · [Download](#baixar-e-jogar-no-windows) · [QR code](#jogue-no-celular) · [Controles](#controles) · [Projeto](#por-dentro-do-projeto) · [Equipe](#equipe)
 
 </div>
+
+## Atualização 2.18
+
+Esta versão corrige quatro pontos encontrados na auditoria: o rodapé da pausa no celular com texto ampliado, a lista de jornadas com nomes longos, a navegação por setas nos créditos pausados e a recuperação de falhas no carregamento Web. Se o download falhar, use **Tentar novamente**. A página será recarregada sem apagar as jornadas salvas. [Consulte as correções e a validação](docs/historico/ALTERACOES-2.18.md).
 
 ## Um museu que precisa de você
 
@@ -137,6 +141,7 @@ As jornadas em andamento ficam salvas **no dispositivo e no navegador usados**. 
 │   ├── data/                   # Banco de questões
 │   ├── audio/                  # Músicas e efeitos
 │   ├── fonts/                  # Fontes e respectivas licenças
+│   ├── web/                    # Entrada móvel e recuperação do carregamento
 │   └── tools/                  # Geração dos recursos do jogo
 ├── docs/                       # Guia, desenvolvimento e avaliação
 │   └── historico/              # Notas das versões anteriores

@@ -17,6 +17,8 @@ godot --headless --path game -- --smoke
 godot --headless --path game --script ../tests/gameover.gd
 godot --headless --path game --script ../tests/questions.gd
 godot --headless --path game --script ../tests/transitions.gd
+godot --headless --path game --script ../tests/audit_fixes.gd
+godot --headless --path game --script ../tests/functional_regression.gd
 ```
 
 O primeiro comando reconstrói as respostas a partir dos dados exibidos nas 4.200 questões e confere também as contas das soluções. Os testes Godot verificam o GAME OVER, 45.000 sorteios e 100.000 posições de alternativas, além de salvamento e migração de jornadas antigas. Testes automáticos não substituem o ensaio visual e a avaliação em aparelhos físicos.
@@ -67,3 +69,24 @@ Execute `python game/tools/build_questions.py` para gerar o banco de forma repro
 `gallery_transition.gd` controla uma apresentação independente do cenário jogável. `game.gd` bloqueia a entrada e o cronômetro durante a sequência, preserva o estado e registra as primeiras entradas concluídas em `introduced_galleries`. Salvamentos antigos aceitam o campo ausente e não repetem apresentações antigas. Uma apresentação inicial interrompida pode ser retomada sem perder progresso.
 
 `python game/tools/build_arrivals.py` recria os cinco efeitos originais de passagem. Cada efeito tem um player dedicado, respeita o volume de efeitos e acompanha a suspensão da apresentação. As músicas existentes não são regeneradas por esse comando.
+
+## Recuperação do carregamento Web
+
+A exportação usa `game/web/mobile.js` para a entrada por gesto e `game/web/loader_recovery.js`, inserido antes dos scripts externos, para apresentar falhas de rede em português. **Tentar novamente** recarrega a página com uma nova instância do motor. Não limpa IndexedDB nem altera o formato do salvamento. Os auxiliares CSS e JS e o PCK recebem a versão na URL.
+
+Para reproduzir a distribuição comprimida, exporte e prepare uma pasta nova:
+
+```sh
+mkdir -p build/web
+godot --headless --path game --export-release Web ../build/web/index.html
+python game/tools/build_mobile_web.py build/web
+python tools/build_web_site.py build/web build/site
+```
+
+O teste opcional de navegador usa Node.js, `playwright-core` e um Chrome/Chromium instalado. Ele serve a pasta localmente, usa contextos isolados, simula falhas no PCK, WASM e nos scripts, verifica o botão de recuperação e confirma a preservação do IndexedDB. Não acessa perfis pessoais. Instale a dependência com `npm install --no-save --package-lock=false playwright-core`. Configure `BROWSER_EXECUTABLE` com o caminho do navegador e execute:
+
+```sh
+node tests/web_recovery.mjs build/site test-results/web-recovery
+```
+
+A suíte Godot `audit_fixes.gd` verifica 564 condições de layout, nomes e navegação. `functional_regression.gd` verifica 668 condições de exploração, cronômetro, salvamento, overlays e restauração. A execução com `-- --visual` em `audit_fixes.gd`, sem `--headless`, também grava capturas em um diretório de usuário isolado. Use um diretório de dados de teste ao rodar as suítes para não interferir nas suas jornadas.

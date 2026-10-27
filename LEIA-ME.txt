@@ -1,4 +1,4 @@
-P.A.RADOXO 2.17 | O Museu Fora do Tempo
+P.A.RADOXO 2.18 | O Museu Fora do Tempo
 
 Jogue: https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/
 Windows: baixe a Release, extraia tudo e abra PARADOXO.exe ao lado de PARADOXO.pck.
