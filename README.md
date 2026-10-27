@@ -131,7 +131,6 @@ As jornadas em andamento ficam salvas **no dispositivo e no navegador usados**. 
 ```text
 .
 ├── README.md                   # Apresentação, acesso e download
-├── CHANGELOG.md                # Novidades de cada versão
 ├── index.html                  # Entrada estável do jogo online
 ├── game/                       # Projeto Godot editável
 │   ├── scripts/                # Interface, exploração e restauração
@@ -142,6 +141,7 @@ As jornadas em andamento ficam salvas **no dispositivo e no navegador usados**. 
 │   └── tools/                  # Geradores dos recursos
 ├── web/                        # Motor, pacote e recursos do navegador
 ├── docs/                       # Guia, desenvolvimento e organização
+│   ├── CHANGELOG.md            # Novidades de cada versão
 │   ├── academico/              # Projeto e roteiro da apresentação
 │   └── referencias/            # Gabaritos para consulta
 ├── media/                      # QR code e capturas do jogo
@@ -156,7 +156,7 @@ Os recursos da Web ficam em `web/`. O `index.html` da raiz mantém o mesmo ender
 
 Para editar, abra **[game/project.godot](game/project.godot)** no **Godot 4.7.2**. [Leia as instruções de desenvolvimento e exportação](docs/DESENVOLVIMENTO.md).
 
-**Documentação:** [Guia do jogador](docs/GUIA-DO-JOGADOR.md) · [Organização e manutenção](docs/ORGANIZACAO.md) · [Projeto acadêmico](docs/academico/PROJETO.md) · [Novidades](CHANGELOG.md) · [Licenças](licenses/README.md)
+**Documentação:** [Guia do jogador](docs/GUIA-DO-JOGADOR.md) · [Organização e manutenção](docs/ORGANIZACAO.md) · [Projeto acadêmico](docs/academico/PROJETO.md) · [Novidades](docs/CHANGELOG.md) · [Licenças](licenses/README.md)
 
 ## Equipe
 

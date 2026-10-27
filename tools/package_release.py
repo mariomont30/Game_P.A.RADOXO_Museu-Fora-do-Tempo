@@ -36,7 +36,7 @@ def package() -> None:
         for p in (ROOT / folder).rglob('*'):
             if p.is_file() and not any(part in ('.godot', 'Godot', '__pycache__', 'node_modules', 'test-results') for part in p.relative_to(ROOT).parts):
                 source.append((p, Path('PARADOXO-Projeto') / p.relative_to(ROOT)))
-    for name in ('README.md', 'CHANGELOG.md', '.gitignore', '.gitattributes'):
+    for name in ('README.md', '.gitignore', '.gitattributes'):
         source.append((ROOT / name, Path('PARADOXO-Projeto') / name))
     targets.append(('PARADOXO-Projeto.zip', source))
     checksums = []

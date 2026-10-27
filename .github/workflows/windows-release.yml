@@ -85,7 +85,7 @@ jobs:
 
           Jogue online: https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/
 
-          Dois personagens, dois modos, três galerias e 4.200 questões de Progressão Aritmética. Interface para computador e celular na horizontal, Caderno de Tico, dicas e salvamento local. Consulte o README para conhecer o jogo e CHANGELOG.md para as novidades.
+          Dois personagens, dois modos, três galerias e 4.200 questões de Progressão Aritmética. Interface para computador e celular na horizontal, Caderno de Tico, dicas e salvamento local. Consulte o README para conhecer o jogo e docs/CHANGELOG.md para as novidades.
           NOTES
           if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
             gh release edit "$RELEASE_TAG" --notes-file "$RUNNER_TEMP/release-notes.md"

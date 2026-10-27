@@ -16,7 +16,7 @@ Voltar ao [README](../README.md).
 | `tests/visual/` | Roteiros que geram capturas de tela. |
 | `tools/` | Preparação Web e empacotamento. |
 | `licenses/` | Licenças e avisos de terceiros. |
-| `CHANGELOG.md` | Resumo das novidades por versão. |
+| `docs/CHANGELOG.md` | Resumo das novidades por versão. |
 | Releases | Downloads Windows, projeto editável e checksums. |
 
 A branch principal permanece `gh-pages`. A publicação continua usando a raiz, com `index.html` como entrada. O diretório `web/` concentra os recursos sem mudar a URL ou a origem dos dados salvos. O QR code aponta para esse endereço estável.
