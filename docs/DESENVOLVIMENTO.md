@@ -17,7 +17,7 @@ godot --headless --path game -- --smoke
 godot --headless --path game --script ../tests/gameover.gd
 godot --headless --path game --script ../tests/questions.gd
 godot --headless --path game --script ../tests/transitions.gd
-godot --headless --path game --script ../tests/audit_fixes.gd
+godot --headless --path game --script ../tests/interface.gd
 godot --headless --path game --script ../tests/functional_regression.gd
 ```
 
@@ -39,13 +39,13 @@ No Windows, também é possível criar a pasta pelo Explorador e usar Projeto �
 
 O workflow `.github/workflows/windows-release.yml` valida o banco, importa e verifica o projeto, exporta o Windows e cria uma Release com os ZIPs. Não exige senha ou token pessoal no código; usa o token temporário do próprio GitHub Actions com permissão de conteúdo.
 
-Para uma nova distribuição, atualize `config/version` em `game/project.godot` e envie a mudança. A tag é `v` seguida dessa versão. Uma Release existente não é sobrescrita: incremente a versão quando mudar o jogo. Mudanças apenas no README não disparam uma nova distribuição.
+Para uma nova distribuição, atualize `config/version` em `game/project.godot` e envie a mudança. A tag é `v` seguida dessa versão. Os arquivos de uma Release existente são preservados: incremente a versão quando mudar o jogo. A descrição da Release usa as informações atuais do projeto. Mudanças apenas no README não disparam uma nova distribuição.
 
 ## Web
 
-A distribuição Web pública está na raiz, separada do projeto editável. Os arquivos `index.*`, `mobile.*`, `.nojekyll`, `_headers` e `licenses/` necessários à hospedagem devem ser preservados juntos. A URL e o QR code atuais permanecem válidos.
+A entrada pública é o `index.html` da raiz, com `<base href="./web/">`. O motor, PCK, estilos, scripts e imagens ficam em `web/`. As licenças ficam em `licenses/`. Preserve essa estrutura ao hospedar. A URL e o QR code atuais permanecem válidos.
 
-Para uma nova exportação Web, use o preset Web em uma pasta nova e execute `python game/tools/build_mobile_web.py CAMINHO_DA_EXPORTACAO`. O script prepara a entrada móvel e deve receber um HTML recém-exportado. A publicação atual usa WASM comprimido e um carregador correspondente: não substitua apenas parte dos arquivos. A automação Windows não altera a Web publicada.
+Para uma nova exportação Web, use o preset Web em uma pasta nova e execute `python game/tools/build_mobile_web.py CAMINHO_DA_EXPORTACAO`. O script prepara a entrada móvel e deve receber um HTML recém-exportado. A publicação atual usa WASM comprimido e um carregador correspondente: não substitua apenas parte dos arquivos. A automação Windows não altera a Web publicada. Para atualizar o site, prepare uma pasta completa com `tools/build_web_site.py` e copie a entrada e os recursos juntos.
 
 ## Recriar música
 
@@ -60,7 +60,7 @@ python game/tools/build_credits.py
 
 Esses scripts geram as músicas. Os efeitos curtos existentes continuam em `game/audio/`. O código de geração usa somente a biblioteca padrão do Python.
 
-## Gerar e auditar o banco
+## Gerar e verificar o banco
 
 Execute `python game/tools/build_questions.py` para gerar o banco de forma reproduzível. Depois execute `python game/validate_bank.py`, que usa cálculos independentes com frações exatas. O arquivo `questions_legacy_215.json` é somente uma referência canônica para salvamentos antigos e não participa do sorteio. A semente dos testes é fixa para reproduzir falhas. No jogo, o sorteio é aleatório.
 
@@ -89,4 +89,10 @@ O teste opcional de navegador usa Node.js, `playwright-core` e um Chrome/Chromiu
 node tests/web_recovery.mjs build/site test-results/web-recovery
 ```
 
-A suíte Godot `audit_fixes.gd` verifica 564 condições de layout, nomes e navegação. `functional_regression.gd` verifica 668 condições de exploração, cronômetro, salvamento, overlays e restauração. A execução com `-- --visual` em `audit_fixes.gd`, sem `--headless`, também grava capturas em um diretório de usuário isolado. Use um diretório de dados de teste ao rodar as suítes para não interferir nas suas jornadas.
+A suíte Godot `interface.gd` verifica layout, nomes e navegação. `functional_regression.gd` verifica exploração, cronômetro, salvamento, sobreposições e restauração. A execução com `-- --visual` em `interface.gd`, sem `--headless`, também grava capturas em um diretório de usuário isolado. Use um diretório de dados de teste ao rodar as suítes para não interferir nas suas jornadas.
+
+## Atualizar a pasta publicada
+
+A pasta criada pelo preparador contém `index.html`, `.nojekyll`, `web/` e `licenses/`. Copie esses arquivos para as posições correspondentes do repositório. Não copie somente o PCK. Os auxiliares usam `document.baseURI` para resolver os recursos, mantendo a página no endereço principal.
+
+Para testar os arquivos já organizados, também é possível executar `node tests/web_recovery.mjs . test-results/web-recovery`. A base dessa página é a pasta `web/`, enquanto o endereço e o armazenamento do navegador continuam pertencendo ao mesmo site.

@@ -1,4 +1,4 @@
-"""Independent audit: solve displayed givens with exact fractions, not the stored answer."""
+"""Independent validation: solve displayed givens with exact fractions, not the stored answer."""
 import ast,json,re
 from pathlib import Path
 from fractions import Fraction
@@ -80,7 +80,7 @@ def arithmetic(expression):
   raise AssertionError(ast.dump(node))
  return visit(ast.parse(expression.replace('−','-').replace('×','*').strip(),mode='eval').body)
 
-def audit():
+def validate():
  bank=json.loads((ROOT/'data/questions.json').read_text(encoding='utf-8'))
  assert len(bank)==4200
  ids=set();fingerprints=set();rank=Counter();families=Counter();signs=Counter();proofs=0
@@ -118,4 +118,4 @@ def audit():
  result={'questions':4200,'displayed_prompts_verified':4200,'numeric_answers_recomputed':3600,'classifications_recomputed':600,'solution_equalities_checked':proofs,'families':dict(Counter(q['family'] for q in bank)),'normal_signs':dict(Counter(q['answer_sign'] for q in bank if q['mode']=='normal')),'hard_signs':dict(Counter(q['answer_sign'] for q in bank if q['mode']=='hard')),'single_correct_sign_cues':0,'rank_counts_per_numeric_group':[75,75,75,75]}
  print('PASS BANK216: '+json.dumps(result,ensure_ascii=False))
  return result
-if __name__=='__main__':audit()
+if __name__=='__main__':validate()

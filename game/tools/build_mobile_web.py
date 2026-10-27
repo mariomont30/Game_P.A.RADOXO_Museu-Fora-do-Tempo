@@ -8,7 +8,7 @@ s=s.replace('<script src="index.js"></script>', '<script src="mobile.js"></scrip
 s=s.replace('<script src="mobile.js"></script>', '''<script>
 const paradoxoFetch=window.fetch.bind(window);
 window.fetch=function(input,options){
- const resource=new URL(typeof input==='string'?input:input.url,location.href);
+ const resource=new URL(typeof input==='string'?input:input.url,document.baseURI);
  if(resource.origin===location.origin&&resource.pathname.endsWith('/index.pck')){
   resource.searchParams.set('v','2.18.0');
   return paradoxoFetch(resource.href,options);

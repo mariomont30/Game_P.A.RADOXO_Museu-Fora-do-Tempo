@@ -20,7 +20,7 @@ func scrolls(node: Node) -> Array:
   out.append_array(scrolls(c))
  return out
 func reset(mode: String="normal",gender: String="female",room: int=0) -> void:
- g.menu();g.profiles=[];g.gender=gender;g.create_profile("Fiscalização 💜",mode)
+ g.menu();g.profiles=[];g.gender=gender;g.create_profile("Teste 💜",mode)
  g.current.done=range(room*4);g.current.introduced_galleries=[0,1,2]
  g.room=room;g.mission=room*4;g.world();g.art.set_process(false)
 func choose_profile(id: String) -> void:
@@ -130,10 +130,10 @@ func run() -> void:
  # Storage recovery of a deliberately deleted journey.
  context={"flow":"explicit deletion and corrupt primary"};reset();var deleted: String=g.current.id;g.save_game();g.delete_profile(deleted)
  var deleted_was_absent: bool=not g.profiles.any(func(p):return p.id==deleted)
- var f=FileAccess.open(g.SAVE,FileAccess.WRITE);f.store_string("damaged by audit fixture");f.close();g.load_save()
+ var f=FileAccess.open(g.SAVE,FileAccess.WRITE);f.store_string("damaged by test fixture");f.close();g.load_save()
  check("DELETED_PROFILE_NOT_RESURRECTED",deleted_was_absent and not g.profiles.any(func(p):return p.id==deleted),{"profiles_after_recovery":g.profiles.size()})
  var failures: Array=checks.filter(func(x):return not x.pass)
  var report={"checks":checks.size(),"passed":checks.size()-failures.size(),"failed":failures.size(),"results":checks}
- var out=FileAccess.open("user://audit-functional.json",FileAccess.WRITE);out.store_string(JSON.stringify(report,"  "));out.close()
- print("AUDIT FUNCTIONAL: ",checks.size()," checks; failures=",failures.size(),"; evidence=",base)
+ var out=FileAccess.open("user://functional-results.json",FileAccess.WRITE);out.store_string(JSON.stringify(report,"  "));out.close()
+ print("FUNCTIONAL: ",checks.size()," checks; failures=",failures.size(),"; evidence=",base)
  g.menu();g.audio.stop_all();await create_timer(.3).timeout;quit(1 if not failures.is_empty() else 0)

@@ -6,7 +6,7 @@ var captures: bool=false
 func _initialize() -> void:call_deferred("run")
 func check(ok: bool,note: String) -> void:
  checks+=1
- if not ok:problems.append(note);push_error("AUDIT FIX: "+note)
+ if not ok:problems.append(note);push_error("INTERFACE: "+note)
 func key(code: int) -> void:
  var event:=InputEventKey.new();event.keycode=code;event.pressed=true;root.push_input(event)
  event=InputEventKey.new();event.keycode=code;event.pressed=false;root.push_input(event)
@@ -78,5 +78,5 @@ func run() -> void:
      key(KEY_SPACE);check(not g.credits_paused,"Space activates Return to credits")
     else:
      key(KEY_ENTER);check(not g.credits_paused,"Enter still resumes desktop credits")
- print("AUDIT FIXES218: ",checks," checks; failures=",problems.size())
+ print("INTERFACE: ",checks," checks; failures=",problems.size())
  g.menu();g.audio.stop_all();await create_timer(.3).timeout;quit(1 if not problems.is_empty() else 0)

@@ -1,4 +1,4 @@
-"""Original musical arrangements and contextualized, audited question bank."""
+"""Original musical arrangements and contextualized, validated question bank."""
 from pathlib import Path
 from array import array
 import wave, math, random, json, struct

@@ -12,7 +12,7 @@ Thumbs.db
 *.tpz
 *.exe
 *.pck
-!index.pck
+!/web/index.pck
 # Ambientes e credenciais locais.
 .env
 .env.*

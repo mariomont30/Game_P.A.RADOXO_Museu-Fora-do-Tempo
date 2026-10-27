@@ -20,10 +20,6 @@ Uma aventura de exploração e restauração em que a matemática faz o tempo vo
 
 </div>
 
-## Atualização 2.18
-
-Esta versão corrige quatro pontos encontrados na auditoria: o rodapé da pausa no celular com texto ampliado, a lista de jornadas com nomes longos, a navegação por setas nos créditos pausados e a recuperação de falhas no carregamento Web. Se o download falhar, use **Tentar novamente**. A página será recarregada sem apagar as jornadas salvas. [Consulte as correções e a validação](docs/historico/ALTERACOES-2.18.md).
-
 ## Um museu que precisa de você
 
 Na véspera de uma exposição, quadros perdem suas cores e invenções começam a se desfazer. Para proteger o acervo, o Curador aciona o Relógio Central e prende o museu no mesmo instante.
@@ -135,29 +131,32 @@ As jornadas em andamento ficam salvas **no dispositivo e no navegador usados**. 
 ```text
 .
 ├── README.md                   # Apresentação, acesso e download
+├── CHANGELOG.md                # Novidades de cada versão
+├── index.html                  # Entrada estável do jogo online
 ├── game/                       # Projeto Godot editável
-│   ├── project.godot
-│   ├── scripts/                # Interface, exploração, áudio e restauração
+│   ├── scripts/                # Interface, exploração e restauração
 │   ├── data/                   # Banco de questões
 │   ├── audio/                  # Músicas e efeitos
-│   ├── fonts/                  # Fontes e respectivas licenças
-│   ├── web/                    # Entrada móvel e recuperação do carregamento
-│   └── tools/                  # Geração dos recursos do jogo
-├── docs/                       # Guia, desenvolvimento e avaliação
-│   └── historico/              # Notas das versões anteriores
-├── media/                      # QR code e capturas de tela
-├── licenses/                   # Avisos e licenças de terceiros
-├── tools/                      # Empacotamento das distribuições
-├── tests/                      # Regressão da derrota, salvamento e interface
-├── .github/workflows/          # Verificação e publicação do Windows
-└── index.*, mobile.*            # Distribuição Web servida pelo GitHub Pages
+│   ├── fonts/                  # Fontes e licenças
+│   ├── web/                    # Fontes da entrada móvel
+│   └── tools/                  # Geradores dos recursos
+├── web/                        # Motor, pacote e recursos do navegador
+├── docs/                       # Guia, desenvolvimento e organização
+│   ├── academico/              # Projeto e roteiro da apresentação
+│   └── referencias/            # Gabaritos para consulta
+├── media/                      # QR code e capturas do jogo
+├── licenses/                   # Licenças e avisos de terceiros
+├── tools/                      # Preparação Web e pacotes
+├── tests/                      # Testes automáticos
+│   └── visual/                 # Roteiros de captura de telas
+└── .github/workflows/          # Verificação e publicação
 ```
 
-Os arquivos da Web permanecem na raiz para preservar o endereço público e o funcionamento do jogo. Executáveis e ZIPs para jogadores ficam nas **[Releases](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases)**, separados do código-fonte.
+Os recursos da Web ficam em `web/`. O `index.html` da raiz mantém o mesmo endereço público e usa esses recursos sem redirecionar o jogador. Executáveis e ZIPs para jogadores ficam nas **[Releases](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases)**, separados do código-fonte.
 
 Para editar, abra **[game/project.godot](game/project.godot)** no **Godot 4.7.2**. [Leia as instruções de desenvolvimento e exportação](docs/DESENVOLVIMENTO.md).
 
-**Documentação:** [Guia do jogador](docs/GUIA-DO-JOGADOR.md) · [Organização e manutenção](docs/ORGANIZACAO.md) · [Avaliação do projeto](docs/AVALIACAO.md) · [Histórico](docs/historico/) · [Licenças](licenses/README.md)
+**Documentação:** [Guia do jogador](docs/GUIA-DO-JOGADOR.md) · [Organização e manutenção](docs/ORGANIZACAO.md) · [Projeto acadêmico](docs/academico/PROJETO.md) · [Novidades](CHANGELOG.md) · [Licenças](licenses/README.md)
 
 ## Equipe
 
@@ -181,7 +180,3 @@ Para editar, abra **[game/project.godot](game/project.godot)** no **Godot 4.7.2*
 [Jogar agora](https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/) · [Baixar para Windows](https://github.com/mariomont30/Game_P.A.RADOXO_Museu-Fora-do-Tempo/releases/latest/download/PARADOXO-Windows.zip)
 
 </div>
-
-## Atualização do banco de questões
-
-A versão 2.16 recalcula e verifica as 4.200 respostas, os enunciados exibidos e as contas das soluções. O banco anterior é mantido somente para validar questões de jornadas já salvas. [Veja a auditoria e os testes](docs/historico/ALTERACOES-2.16.md).

@@ -1,19 +1,26 @@
 # Organização e manutenção
 
-O repositório reúne o código editável, a documentação e a distribuição Web. A branch `gh-pages` continua sendo a branch principal e a origem do site; renomeá-la ou mudar a pasta da publicação exigiria reconfigurar o GitHub Pages.
+Voltar ao [README](../README.md).
 
 | Local | Responsabilidade |
 | --- | --- |
-| `game/` | Projeto Godot, cenas, scripts, perguntas e recursos originais. |
-| `docs/` | Guia, instruções de desenvolvimento e avaliação acadêmica. |
-| `docs/historico/` | Notas anteriores, mantidas como registro. |
-| `media/` | QR code e capturas usados no README. |
+| `game/` | Projeto Godot editável, cenas, scripts e recursos originais. |
+| `game/web/` | Fontes dos auxiliares usados na exportação Web. |
+| `web/` | Recursos exportados do navegador: motor, PCK, imagens, estilos e scripts. |
+| `index.html` | Entrada online estável, com os recursos relativos a `web/`. |
+| `docs/` | Guia do jogador, desenvolvimento e manutenção. |
+| `docs/academico/` | Identificação do projeto e roteiro da apresentação. |
+| `docs/referencias/` | Gabaritos para consulta. |
+| `media/` | QR code e capturas usadas na apresentação do repositório. |
+| `tests/` | Testes de interface, exploração, perguntas, transições e carregamento. |
+| `tests/visual/` | Roteiros que geram capturas de tela. |
+| `tools/` | Preparação Web e empacotamento. |
 | `licenses/` | Licenças e avisos de terceiros. |
-| `tools/` | Geração dos pacotes de distribuição. |
-| `.github/workflows/` | Verificação e publicação do download Windows. |
-| Raiz, `index.*` e `mobile.*` | Exportação Web publicada; preservar os caminhos existentes. |
-| Releases | ZIP Windows, projeto editável e checksums. |
+| `CHANGELOG.md` | Resumo das novidades por versão. |
+| Releases | Downloads Windows, projeto editável e checksums. |
 
-Não versionar cache `.godot`, saves de usuários, credenciais de exportação, executáveis gerados ou arquivos ZIP. Os recursos e configurações necessários para reproduzir o projeto são versionados. Não foi atribuída uma nova licença ao código ou à arte da equipe: essa escolha cabe aos autores; consulte [licenças](../licenses/README.md).
+A branch principal permanece `gh-pages`. A publicação continua usando a raiz, com `index.html` como entrada. O diretório `web/` concentra os recursos sem mudar a URL ou a origem dos dados salvos. O QR code aponta para esse endereço estável.
 
-As capturas documentam a versão 2.14. O QR code aponta para o endereço público estável e não precisa ser trocado a cada atualização. A versão mais recente para Windows deve ser disponibilizada como Release com o nome de arquivo estável `PARADOXO-Windows.zip`, usado pelo botão de download do README.
+`build/` e `dist/` são saídas locais ignoradas pelo Git. Caches, credenciais, salvamentos pessoais e relatórios de trabalho não pertencem ao repositório. Os testes usam dados isolados. Código, imagens e composições próprias pertencem aos autores; consulte [licenças](../licenses/README.md).
+
+O nome estável `PARADOXO-Windows.zip` nas Releases mantém o download do README funcionando. Pacotes publicados de versões anteriores são registros das distribuições daquela data.

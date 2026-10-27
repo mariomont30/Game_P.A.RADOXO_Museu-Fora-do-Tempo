@@ -32,7 +32,7 @@
   // Observe startup resource fetches directly, including compressed WASM.
   const startupFetch = window.fetch.bind(window);
   window.fetch = async (input, options) => {
-    const url = new URL(typeof input === 'string' ? input : input.url, location.href);
+    const url = new URL(typeof input === 'string' ? input : input.url, document.baseURI);
     const startupResource = url.origin === location.origin && /\/index\.(pck|wasm)(\.gz)?$/.test(url.pathname);
     try {
       const response = await startupFetch(input, options);
@@ -52,7 +52,7 @@
   });
   window.addEventListener('error', (event) => {
     if (!(event.target instanceof HTMLScriptElement) || !event.target.src) return;
-    const path = new URL(event.target.src, location.href).pathname;
+    const path = new URL(event.target.src, document.baseURI).pathname;
     if (path.endsWith('/index.js') || path.endsWith('/mobile.js')) {
       window.paradoxoLoadFailure(new Error('Startup script unavailable'));
     }

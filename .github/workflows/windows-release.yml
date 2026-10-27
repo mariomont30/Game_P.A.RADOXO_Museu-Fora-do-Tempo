@@ -54,7 +54,7 @@ jobs:
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/gameover.gd
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/questions.gd
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/transitions.gd
-          Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/audit_fixes.gd
+          Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/interface.gd
           Godot_v4.7.2-stable_linux.x86_64 --headless --path game --script ../tests/functional_regression.gd
       - name: Exportar Windows e verificar os pacotes
         run: |
@@ -68,10 +68,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
-            echo 'Release já existe. Preserve os downloads publicados e incremente config/version para uma nova distribuição.'
-            exit 0
-          fi
           cat > "$RUNNER_TEMP/release-notes.md" <<'NOTES'
           ## P.A.RADOXO — O Museu Fora do Tempo
 
@@ -89,8 +85,13 @@ jobs:
 
           Jogue online: https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/
 
-          Versão 2.18 com correções da auditoria: pausa legível no celular com texto ampliado, jornadas com nomes longos sem esconder Excluir e navegação por setas nos créditos pausados. A Web também oferece recuperação de falhas de download em português, preservando os dados salvos. As apresentações das três alas, as músicas, as regras de GAME OVER e o banco de 4.200 questões são preservados. Confira os testes em docs/historico/ALTERACOES-2.18.md.
+          Dois personagens, dois modos, três galerias e 4.200 questões de Progressão Aritmética. Interface para computador e celular na horizontal, Caderno de Tico, dicas e salvamento local. Consulte o README para conhecer o jogo e CHANGELOG.md para as novidades.
           NOTES
+          if gh release view "$RELEASE_TAG" > /dev/null 2>&1; then
+            gh release edit "$RELEASE_TAG" --notes-file "$RUNNER_TEMP/release-notes.md"
+            echo 'Descrição atualizada. Downloads existentes preservados.'
+            exit 0
+          fi
           gh release create "$RELEASE_TAG" --target "$GITHUB_SHA" --title "P.A.RADOXO $RELEASE_TAG · O Museu Fora do Tempo" --notes-file "$RUNNER_TEMP/release-notes.md" --draft
           gh release upload "$RELEASE_TAG" dist/PARADOXO-Windows.zip dist/PARADOXO-Projeto.zip dist/SHA256SUMS.txt
           gh release edit "$RELEASE_TAG" --draft=false --latest

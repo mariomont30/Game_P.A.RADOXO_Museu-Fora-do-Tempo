@@ -1549,7 +1549,7 @@ func smoke_test() -> void:
 		art.hero=art.path[-1]; assert(art.near(i))
 	# Every work gets unseen random questions, never a fixed answer per work.
 	for mode in ["normal","hard"]:
-		create_profile("Auditoria",mode); current.tutorial=true
+		create_profile("Teste",mode); current.tutorial=true
 		for m in range(12):
 			mission=m
 			for sample in range(5):

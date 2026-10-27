@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 	<head>
+<base href="./web/">
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 		<title>P.A.RADOXO | O Museu Fora do Tempo</title>
@@ -114,7 +115,7 @@ body {
 		<script>
 const paradoxoFetch=window.fetch.bind(window);
 window.fetch=function(input,options){
- const resource=new URL(typeof input==='string'?input:input.url,location.href);
+ const resource=new URL(typeof input==='string'?input:input.url,document.baseURI);
  if(resource.origin===location.origin&&resource.pathname.endsWith('/index.pck')){
   resource.searchParams.set('v','2.18.0');
   return paradoxoFetch(resource.href,options);
@@ -156,7 +157,7 @@ window.fetch=function(input,options){
   // Observe startup resource fetches directly, including compressed WASM.
   const startupFetch = window.fetch.bind(window);
   window.fetch = async (input, options) => {
-    const url = new URL(typeof input === 'string' ? input : input.url, location.href);
+    const url = new URL(typeof input === 'string' ? input : input.url, document.baseURI);
     const startupResource = url.origin === location.origin && /\/index\.(pck|wasm)(\.gz)?$/.test(url.pathname);
     try {
       const response = await startupFetch(input, options);
@@ -176,7 +177,7 @@ window.fetch=function(input,options){
   });
   window.addEventListener('error', (event) => {
     if (!(event.target instanceof HTMLScriptElement) || !event.target.src) return;
-    const path = new URL(event.target.src, location.href).pathname;
+    const path = new URL(event.target.src, document.baseURI).pathname;
     if (path.endsWith('/index.js') || path.endsWith('/mobile.js')) {
       window.paradoxoLoadFailure(new Error('Startup script unavailable'));
     }
@@ -187,7 +188,7 @@ window.fetch=function(input,options){
 <script>
 const originalFetch=window.fetch.bind(window);
 window.fetch=async function(input,options){
- const url=new URL(typeof input==='string'?input:input.url,location.href);
+ const url=new URL(typeof input==='string'?input:input.url,document.baseURI);
  if(url.pathname.endsWith('/index.wasm')){
    url.pathname+='.gz';
    const response=await originalFetch(url.href,options);
