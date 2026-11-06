@@ -16,7 +16,7 @@ Uma aventura de exploração e restauração em que a matemática faz o tempo vo
 ![Idioma](https://img.shields.io/badge/Idioma-Português_BR-8adbc1)
 ![Tema](https://img.shields.io/badge/Matemática-Progressão_Aritmética-54617d)
 
-[Conheça o jogo](#um-museu-que-precisa-de-você) · [Download](#baixar-e-jogar-no-windows) · [QR code](#jogue-no-celular) · [Controles](#controles) · [Projeto](#por-dentro-do-projeto) · [Equipe](#equipe)
+[Conheça o jogo](#um-museu-que-precisa-de-você) · [Download](#baixar-e-jogar-no-windows) · [QR code](#jogue-no-celular) · [Controles](#controles) · [Avaliação docente](#avaliação-docente) · [Projeto](#por-dentro-do-projeto) · [Equipe](#equipe)
 
 </div>
 
@@ -117,6 +117,13 @@ Cada coração vermelho representa uma vida. Ao perder uma vida, um coração fi
 **GAME OVER:** ao esgotar os corações pela primeira vez em um desafio, você pode usar uma tentativa extra. Ela começa com **três corações no Normal ou dois no Difícil**, outra questão do mesmo conteúdo e, no Difícil, tempo renovado. **Ao acertar uma pergunta, todos os corações voltam e a tentativa extra é renovada para o próximo desafio.** Se esgotar os corações novamente antes de acertar, todo o progresso dessa jornada será apagado e o jogo voltará à tela inicial. Pausar, trocar a pergunta, voltar ao menu ou fechar o jogo não renovam as chances. Outras jornadas e configurações são preservadas.
 
 No final, **Meu aprendizado** mostra um resumo e cards por conteúdo, com acertos sem ajuda, acertos com ajuda, erros, questões puladas e tempo esgotado. O painel permite consultar o Caderno de Tico e adapta as colunas para a tela do celular.
+
+## Avaliação docente
+
+O questionário é destinado a professores e pesquisadores de Matemática. O objetivo é avaliar os desafios de progressão aritmética e entender como o jogo pode ser usado em sala de aula.
+
+1. **[Jogue antes de responder](https://mariomont30.github.io/Game_P.A.RADOXO_Museu-Fora-do-Tempo/)**. Se possível, explore as três alas nos modos Normal e Difícil.
+2. **[Responda ao questionário no Google Formulários](https://docs.google.com/forms/d/e/1FAIpQLSeG_0CSwceFPdSF19KgfT9hKCgjLp6O5ltUiM2OlqV6Z2i1ZA/viewform)**. São nove perguntas sobre os desafios nas três alas, possíveis melhorias, uso em aula e experiência geral com o jogo.
 
 ## Controles
 
